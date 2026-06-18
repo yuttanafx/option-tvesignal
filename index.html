@@ -886,9 +886,10 @@ function renderDailyPanel() {
     const assetShort = e.asset.replace('USD','').replace('USD','');
     let resultHTML;
     if (e.result === 'pending') {
-      const secsLeft = Math.max(0, Math.round((e.resolveAt - Date.now()) / 1000));
-      const mLeft = Math.floor(secsLeft / 60), sLeft = secsLeft % 60;
-      resultHTML = `<span class="result-pending">⏳ ${mLeft}:${String(sLeft).padStart(2,'0')}</span>`;
+     const secsLeft = Math.max(0, Math.round((e.resolveAt - Date.now()) / 1000));
+     const mLeft = Math.floor(secsLeft / 60); 
+     const sLeft = secsLeft % 60;
+    resultHTML = `<span class="result-pending">⏳ ${mLeft}:${String(sLeft).padStart(2,'0')}</span>`;
     } else if (e.result === 'win') {
       resultHTML = `<span class="result-win">✓ WIN</span>`;
     } else {
