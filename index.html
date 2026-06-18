@@ -697,7 +697,7 @@ async function runMultiScanner() {
       } else {
         // ── Binance klines ──
         // เปลี่ยนบรรทัด fetch เดิม เป็นบรรทัดนี้ครับ:
-const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=80`));
+const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=80`)); 
         if (!res.ok) throw new Error(`Binance ${res.status}`);
         klines = await res.json();
         price  = parseFloat(klines[klines.length - 1][4]);
