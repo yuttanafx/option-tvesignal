@@ -367,7 +367,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 window.isUnlocked = false;
-let currentTimeframeMinutes = '15';
+window.selectedTF = '15';
 let lastSentSignals = {};
 let chartFocusAsset = 'XAUUSD';
 let filterLevel = 'normal'; // 'loose' | 'normal' | 'tight'
@@ -542,12 +542,12 @@ async function sendSignalTelegram(assetKey, dir, strikePrice, quality) {
   const cid = localStorage.getItem('tve_user_chatid');
   if (!tok || !cid) return;
 
-  const uniqueSignalKey = `${assetKey}_${dir}_${currentTimeframeMinutes}_${filterLevel}`;
+  const uniqueSignalKey = `${assetKey}_${dir}_${window.selectedTF}_${filterLevel}`;
   if (lastSentSignals[assetKey] === uniqueSignalKey) return;
 
   const emoji = dir === 'buy' ? '🟢 [CALL / HIGHER]' : '🔴 [PUT / LOWER]';
   const qualEmoji = quality === 'strong' ? '⭐⭐⭐ STRONG' : quality === 'normal' ? '⭐⭐ NORMAL' : '⭐ WEAK';
-  const expiryText = currentTimeframeMinutes === '15' ? '1 MIN' : currentTimeframeMinutes === '60' ? '5 MIN' : '15 MIN';
+  const expiryText = window.selectedTF === '15' ? '1 MIN' : window.selectedTF === '60' ? '5 MIN' : '15 MIN';
   const filterText = filterLevel.toUpperCase();
   const timeStr = new Date().toLocaleTimeString('th-TH');
 
@@ -569,14 +569,14 @@ _ผ่านระบบฟิลเตอร์ ${filterText} · TVE Premium_`
     const r = await fetch(`https://api.telegram.org/bot${tok}/sendMessage?chat_id=${cid}&text=${text}&parse_mode=Markdown`);
     if(r.ok) {
       lastSentSignals[assetKey] = uniqueSignalKey;
-      logNewSignal(assetKey, dir, strikePrice, currentTimeframeMinutes);
+      logNewSignal(assetKey, dir, strikePrice, window.selectedTF);
     }
   } catch(e){}
 }
 
 // ─── CHART ────────────────────────────────────────────────────────────────────
 function updateTradingViewChart() {
-  let tvInterval = currentTimeframeMinutes === '15' ? '1' : currentTimeframeMinutes === '60' ? '5' : '15';
+  let tvInterval = window.selectedTF === '15' ? '1' : window.selectedTF === '60' ? '5' : '15';
   new TradingView.widget({
     "width": "100%", "height": "100%",
     "symbol": assetMap[chartFocusAsset].tvSymbol,
@@ -600,7 +600,7 @@ function switchChartFocus(key) {
 }
 
 function changeTF(tfMinutes) {
-  currentTimeframeMinutes = tfMinutes;
+  window.selectedTF = tfMinutes;
   document.getElementById('tfM15').classList.toggle('active', tfMinutes === '15');
   document.getElementById('tfH1').classList.toggle('active',  tfMinutes === '60');
   document.getElementById('tfH4').classList.toggle('active',  tfMinutes === '240');
@@ -669,7 +669,7 @@ async function fetchForexKlines(base, quote, tfMinutes) {
 
 // ─── MAIN SCANNER ─────────────────────────────────────────────────────────────
 async function runMultiScanner() {
-  const binanceInterval = currentTimeframeMinutes === '15' ? '1m' : currentTimeframeMinutes === '60' ? '5m' : '15m';
+  const binanceInterval = window.selectedTF === '15' ? '1m' : window.selectedTF === '60' ? '5m' : '15m';
   const tbody = document.getElementById('multiAssetTableBody');
   let htmlBuffer = "";
   let localTotal = 0, localSignal = 0, localFiltered = 0;
@@ -692,7 +692,7 @@ async function runMultiScanner() {
 
       if (assetInfo.source === 'forex') {
         // ── Forex pairs ที่ไม่มีใน Binance → ดึงจาก Frankfurter ──
-        klines = await fetchForexKlines(assetInfo.fxBase, assetInfo.fxQuote, currentTimeframeMinutes);
+        klines = await fetchForexKlines(assetInfo.fxBase, assetInfo.fxQuote, window.selectedTF);
         price  = parseFloat(klines[klines.length - 1][4]);
       } else {
         // ── Binance klines ──
@@ -727,7 +727,7 @@ async function runMultiScanner() {
             // กรณีไม่มี Telegram token ให้ log โดยตรง
             const tok = localStorage.getItem('tve_user_token');
             const cid = localStorage.getItem('tve_user_chatid');
-            if (!tok || !cid) logNewSignal(key, direction, price, currentTimeframeMinutes);
+            if (!tok || !cid) logNewSignal(key, direction, price, window.selectedTF);
           }
         }
 
