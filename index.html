@@ -101,6 +101,12 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .lock-error{color:var(--red);font-size:11px;margin-top:8px;font-family:'Space Mono',monospace;display:none;}
 .welcome-user{font-size:11px;color:var(--green);font-family:'Space Mono',monospace;margin-bottom:10px;text-align:center;display:none;}
 
+/* 🛠️ ส่วนสไตล์กล่องอินพุตตั้งค่าพอร์ตส่วนตัวของยูสเซอร์ */
+.tg-input { width: 100%; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 11px; margin-bottom: 8px; outline: none; }
+.tg-input:focus { border-color: var(--blue); }
+.tg-save-btn { width: 100%; background: var(--blue-dim); border: 1px solid rgba(79,195,247,0.4); color: var(--blue); padding: 8px; font-weight: 600; font-size: 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.tg-save-btn:hover { background: rgba(79,195,247,0.25); border-color: var(--blue); }
+
 .signal-box{border-radius:10px;padding:18px;border:1px solid var(--border); transition: all 0.3s; }
 .signal-box.buy{background:linear-gradient(135deg,rgba(0,230,118,0.08) 0%,transparent 100%);border-color:rgba(0,230,118,0.45);box-shadow:0 0 15px rgba(0,230,118,0.1);}
 .signal-box.sell{background:linear-gradient(135deg,rgba(255,68,68,0.08) 0%,transparent 100%);border-color:rgba(255,68,68,0.45);box-shadow:0 0 15px rgba(255,68,68,0.1);}
@@ -110,7 +116,6 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .sig-word{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:1px;}
 .sig-sub{font-size:11px;color:var(--text2);margin-top:2px;}
 .levels{display:flex;flex-direction:column;gap:8px;}
-.layout{display:grid;grid-template-columns:1fr 340px;height:calc(100vh - 53px);}
 .level-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border-radius:7px;padding:12px 14px;border:1px solid var(--border);}
 .level-row.strike{border-left:4px solid var(--blue);}
 .level-row.expiry{border-left:4px solid var(--gold);}
@@ -170,7 +175,6 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
     const errMsg = document.getElementById('lockError');
     if(!userInput) return;
     
-    // 📡 ดึงข้อมูลโครงสร้างแบบยึดพิกัดตรงเวอร์ชัน โมดูลาร์ 
     get(child(ref(db), `option_codes/${userInput}`)).then((snapshot) => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
@@ -180,6 +184,9 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
         const welcome = document.getElementById('welcomeUser');
         welcome.textContent = `Options Premium: ${userData.customer_name}`;
         welcome.style.display = 'block';
+        
+        // 🛠️ โหลดกุญแจจำค่า Telegram ส่วนตัวของลูกค้าขึ้นมาเติมในฟอร์มทันทีที่ล็อกอินผ่าน
+        loadUserTelegramKeys();
         run();
       } else {
         window.isUnlocked = false;
@@ -234,10 +241,17 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
       </div>
     </div>
 
+    <div class="sec">
+      <div class="sec-title">🚀 ตั้งค่า TELEGRAM ALERT ส่วนตัว</div>
+      <input type="text" id="userTgToken" class="tg-input" placeholder="วาง Bot Token ส่วนตัวที่นี่...">
+      <input type="text" id="userTgChatId" class="tg-input" placeholder="วาง Chat ID กลุ่ม/ส่วนตัวที่นี่...">
+      <button class="tg-save-btn" onclick="saveUserTelegramKeys()">💾 บันทึกสิทธิ์รับแจ้งเตือน</button>
+    </div>
+
     <div class="welcome-user" id="welcomeUser"></div>
 
     <div class="sec">
-      <div class="sec-title">信号ประมวลผลออปชั่นสด</div>
+      <div class="sec-title">สัญญาณประมวลผลออปชั่นสด</div>
 
       <div class="signal-container-relative">
         <div class="signal-lock-overlay" id="lockOverlay">
@@ -312,6 +326,25 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 </div>
 
 <script>
+(function() {
+  const container = document.getElementById('tveParticles');
+  if (!container) return;
+  const pos = [
+    {top:'8%',left:'18%'},{top:'18%',left:'80%'},{top:'72%',left:'86%'},
+    {top:'82%',left:'10%'},{top:'42%',left:'4%'},{top:'4%',left:'58%'},
+    {top:'90%',left:'48%'},{top:'32%',left:'94%'},{top:'60%',left:'2%'},
+    {top:'14%',left:'38%'},{top:'78%',left:'72%'},{top:'50%',left:'92%'},
+  ];
+  pos.forEach(p => {
+    const s = document.createElement('div');
+    s.className = 'tve-star';
+    s.style.top = p.top; s.style.left = p.left;
+    s.style.setProperty('--dur', (1.4 + Math.random()*2).toFixed(1)+'s');
+    s.style.setProperty('--delay', (Math.random()*2.5).toFixed(1)+'s');
+    container.appendChild(s);
+  });
+})();
+
 window.isUnlocked = false; 
 let currentAsset = 'XAUUSD';
 let currentTimeframeMinutes = '15'; 
@@ -325,6 +358,22 @@ const assetMap = {
   ETHUSD: { tvSymbol: "BINANCE:ETHUSDT", binanceSymbol: "ETHUSDT", label: "ETHEREUM / U.S. DOLLAR" },
   EURUSD: { tvSymbol: "FX:EURUSD", binanceSymbol: "EURUSDT", label: "EURO / U.S. DOLLAR" }
 };
+
+// 🛠️ ฟังก์ชันจัดเก็บคีย์ลงเครื่องลูกค้า (LocalStorage Memory)
+window.saveUserTelegramKeys = function() {
+  const tok = document.getElementById('userTgToken').value.trim();
+  const cid = document.getElementById('userTgChatId').value.trim();
+  localStorage.setItem('tve_user_token', tok);
+  localStorage.setItem('tve_user_chatid', cid);
+  alert("✨ บันทึกการตั้งค่า Telegram ส่วนตัวสำเร็จ! ระบบจะส่งสัญญาณเข้าบอทนี้ทันที");
+}
+
+function loadUserTelegramKeys() {
+  const savedTok = localStorage.getItem('tve_user_token');
+  const savedCid = localStorage.getItem('tve_user_chatid');
+  if(savedTok) document.getElementById('userTgToken').value = savedTok;
+  if(savedCid) document.getElementById('userTgChatId').value = savedCid;
+}
 
 function updateTradingViewChart() {
   let tvInterval = currentTimeframeMinutes === '15' ? '1' : currentTimeframeMinutes === '60' ? '5' : '15';
@@ -502,10 +551,52 @@ async function run() {
 
       const matrixAnalysis = calculateOptionsMatrix(klines, currentPrice);
       renderUI(currentPrice, matrixAnalysis.details, matrixAnalysis.direction, matrixAnalysis.trendText);
+      
+      // 📡 เรียกยิงสัญญาณเข้า Telegram ส่วนตัวของผู้ใช้งาน
+      if (matrixAnalysis.direction !== 'hold') {
+        broadcastToUserTelegram(matrixAnalysis.direction, currentPrice);
+      }
     }
   } catch(e) {
     console.error(e);
   }
+}
+
+// 📡 ฟังก์ชันดึงคีย์ส่วนตัวจากเครื่องผู้ใช้มายิงตรงแบบคีย์ใครคีย์มัน
+async function broadcastToUserTelegram(dir, strikePrice) {
+  const userToken = localStorage.getItem('tve_user_token');
+  const userChatId = localStorage.getItem('tve_user_chatid');
+  
+  // ถ้าลูกค้าคนนี้ไม่ได้ใส่คีย์บอทส่วนตัวไว้ ระบบจะไม่ส่งสัญญาณออก
+  if (!userToken || !userChatId) return;
+
+  const currentKey = `${dir}_${currentAsset}_${currentTimeframeMinutes}`;
+  if (lastSentSignal === currentKey) return;
+
+  const emoji = dir === 'buy' ? '🟢 [CALL / HIGHER]' : '🔴 [PUT / LOWER]';
+  let expiryText = currentTimeframeMinutes === '15' ? '1 MIN' : currentTimeframeMinutes === '60' ? '5 MIN' : '15 MIN';
+  const timeStr = new Date().toLocaleTimeString('th-TH');
+
+  const text = encodeURIComponent(
+`🎯 *TVE OPTIONS ADVANCED SIGNAL* 🎯
+━━━━━━━━━━━━━━━━━━
+สินทรัพย์: *${currentAsset}*
+⏱️ สัญญาหมดอายุ: *${expiryText} (จบแท่ง)*
+ทิศทางคำสั่ง: *${emoji}*
+
+📌 *พิกัดจุดเปิดออเดอร์อ้างอิง:*
+• Strike Price: *$${strikePrice.toLocaleString('en-US') || strikePrice}*
+
+⏰ เวลาสแกนเจอระบบ: ${timeStr} (BKK)
+━━━━━━━━━━━━━━━━━━
+_ระบบสัญญาณส่วนตัวเฉพาะบัญชี Premium TVE Matrix เท่านั้น_`
+  );
+
+  const url = `https://api.telegram.org/bot${userToken}/sendMessage?chat_id=${userChatId}&text=${text}&parse_mode=Markdown`;
+  try {
+    const res = await fetch(url);
+    if(res.ok) { lastSentSignal = currentKey; }
+  } catch (e) {}
 }
 
 updateTradingViewChart();
