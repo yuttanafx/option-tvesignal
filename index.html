@@ -235,7 +235,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
         <button class="asset-btn" id="asset-SOLUSD" onclick="toggleAssetSelection('SOLUSD')">🪙 SOLUSD <span class="type-badge">Crypto</span></button>
         <button class="asset-btn" id="asset-EURUSD" onclick="toggleAssetSelection('EURUSD')">🇪🇺 EURUSD <span class="type-badge">Forex</span></button>
         <button class="asset-btn" id="asset-GBPUSD" onclick="toggleAssetSelection('GBPUSD')">🇬🇧 GBPUSD <span class="type-badge">Forex</span></button>
-        <button class="asset-btn" id="asset-USDJPY" onclick="toggleAssetSelection('USDJPY')">🇯🇵 USDJPY <span class="type-badge">Forex</span></button>
+        <button class="asset-btn" id="asset-LTCUSD" onclick="toggleAssetSelection('LTCUSD')">Ł LTCUSDT <span class="type-badge">Crypto</span></button>
         <button class="asset-btn" id="asset-AUDUSD" onclick="toggleAssetSelection('AUDUSD')">🇦🇺 AUDUSD <span class="type-badge">Forex</span></button>
       </div>
     </div>
@@ -399,15 +399,17 @@ const FILTER_CONFIG = {
 };
 
 // ─── ASSET MAP ────────────────────────────────────────────────────────────────
+// source: 'binance' = ดึงจาก Binance klines API ตรง
+// source: 'forex'   = ดึงจาก Frankfurter (ECB) แล้ว build synthetic klines
 const assetMap = {
-  XAUUSD: { tvSymbol: "FX_IDC:XAUUSD",    binanceSymbol: "PAXGUSDT", active: true,  name: "💰 XAUUSD" },
-  BTCUSD: { tvSymbol: "BINANCE:BTCUSDT",  binanceSymbol: "BTCUSDT",  active: true,  name: "₿ BTCUSD"  },
-  ETHUSD: { tvSymbol: "BINANCE:ETHUSDT",  binanceSymbol: "ETHUSDT",  active: false, name: "♦ ETHUSD"  },
-  SOLUSD: { tvSymbol: "BINANCE:SOLUSDT",  binanceSymbol: "SOLUSDT",  active: false, name: "🪙 SOLUSD"  },
-  EURUSD: { tvSymbol: "FX:EURUSD",        binanceSymbol: "EURUSDT",  active: false, name: "🇪🇺 EURUSD"  },
-  GBPUSD: { tvSymbol: "FX:GBPUSD",        binanceSymbol: "GBPUSDT",  active: false, name: "🇬🇧 GBPUSD"  },
-  USDJPY: { tvSymbol: "FX:USDJPY",        binanceSymbol: "USDJPY",   active: false, name: "🇯🇵 USDJPY"  },
-  AUDUSD: { tvSymbol: "FX:AUDUSD",        binanceSymbol: "AUDUSDT",  active: false, name: "🇦🇺 AUDUSD"  }
+  XAUUSD: { tvSymbol: "FX_IDC:XAUUSD",    binanceSymbol: "PAXGUSDT",  source: 'binance', active: true,  name: "💰 XAUUSD" },
+  BTCUSD: { tvSymbol: "BINANCE:BTCUSDT",  binanceSymbol: "BTCUSDT",   source: 'binance', active: true,  name: "₿ BTCUSD"  },
+  ETHUSD: { tvSymbol: "BINANCE:ETHUSDT",  binanceSymbol: "ETHUSDT",   source: 'binance', active: false, name: "♦ ETHUSD"  },
+  SOLUSD: { tvSymbol: "BINANCE:SOLUSDT",  binanceSymbol: "SOLUSDT",   source: 'binance', active: false, name: "🪙 SOLUSD"  },
+  EURUSD: { tvSymbol: "FX:EURUSD",        binanceSymbol: "EURUSDT",   source: 'binance', active: false, name: "🇪🇺 EURUSD"  },
+  GBPUSD: { tvSymbol: "FX:GBPUSD",        binanceSymbol: "GBPUSDT",   source: 'binance', active: false, name: "🇬🇧 GBPUSD"  },
+  LTCUSD: { tvSymbol: "BINANCE:LTCUSDT", binanceSymbol: "LTCUSDT", source: 'binance', active: false, name: "Ł LTCUSDT" },
+  AUDUSD: { tvSymbol: "FX:AUDUSD",        binanceSymbol: "AUDUSDT",   source: 'binance', active: false, name: "🇦🇺 AUDUSD"  }
 };
 
 // ─── FILTER LEVEL SELECTOR ────────────────────────────────────────────────────
@@ -630,6 +632,41 @@ window.manualRefresh = async function() {
   label.textContent = 'สั่งคัดกรองรอบใหม่ + ล้างสัญญาณเก่า';
 };
 
+// ─── FOREX KLINES (Frankfurter / ECB) ────────────────────────────────────────
+// สร้าง synthetic klines จากข้อมูลรายวัน เพื่อให้ EMA/RSI ทำงานได้
+async function fetchForexKlines(base, quote, tfMinutes) {
+  // Frankfurter ให้ข้อมูลรายวันย้อนหลัง → ใช้ 80 วันล่าสุด
+  const endDate  = new Date().toISOString().split('T')[0];
+  const startDate = new Date(Date.now() - 90 * 86400000).toISOString().split('T')[0];
+  const url = `https://api.frankfurter.app/${startDate}..${endDate}?from=${base}&to=${quote}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Frankfurter error ${res.status}`);
+  const data = await res.json();
+
+  // แปลงเป็น array เรียงตามวันที่
+  const dates = Object.keys(data.rates).sort();
+  if (dates.length < 30) throw new Error('ข้อมูล forex ไม่พอ');
+
+  // build synthetic klines: [openTime, open, high, low, close, volume(dummy)]
+  // ใช้ราคาวันก่อนเป็น open ของวันปัจจุบัน
+  const klines = [];
+  for (let i = 1; i < dates.length; i++) {
+    const prevRate = data.rates[dates[i - 1]][quote];
+    const curRate  = data.rates[dates[i]][quote];
+    const hi = Math.max(prevRate, curRate) * 1.0002; // simulate high/low เล็กน้อย
+    const lo = Math.min(prevRate, curRate) * 0.9998;
+    klines.push([
+      new Date(dates[i]).getTime(), // openTime
+      String(prevRate),             // open
+      String(hi),                   // high
+      String(lo),                   // low
+      String(curRate),              // close
+      '1000'                        // volume dummy (ไม่ใช้ vol filter สำหรับ forex)
+    ]);
+  }
+  return klines;
+}
+
 // ─── MAIN SCANNER ─────────────────────────────────────────────────────────────
 async function runMultiScanner() {
   const binanceInterval = currentTimeframeMinutes === '15' ? '1m' : currentTimeframeMinutes === '60' ? '5m' : '15m';
@@ -650,14 +687,24 @@ async function runMultiScanner() {
 
     localTotal++;
     try {
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=80`);
-      if (res.ok) {
-        const klines  = await res.json();
-        const price   = parseFloat(klines[klines.length - 1][4]);
+      let klines;
+      let price;
+
+      if (assetInfo.source === 'forex') {
+        // ── Forex pairs ที่ไม่มีใน Binance → ดึงจาก Frankfurter ──
+        klines = await fetchForexKlines(assetInfo.fxBase, assetInfo.fxQuote, currentTimeframeMinutes);
+        price  = parseFloat(klines[klines.length - 1][4]);
+      } else {
+        // ── Binance klines ──
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=80`);
+        if (!res.ok) throw new Error(`Binance ${res.status}`);
+        klines = await res.json();
+        price  = parseFloat(klines[klines.length - 1][4]);
+      }
         const { direction, quality, reason } = analyzeAssetData(klines);
 
         // decimal format
-        let dp = (key.includes('USD') && !['XAUUSD','BTCUSD','ETHUSD','SOLUSD'].includes(key)) ? 4 : key === 'USDJPY' ? 3 : 2;
+        let dp = ['BTCUSD','ETHUSD','SOLUSD','XAUUSD','LTCUSD'].includes(key) ? 2 : 4;
         let fmtPrice = price.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
 
         let badgeClass, txtLabel, qualHTML;
@@ -690,7 +737,6 @@ async function runMultiScanner() {
           <td><span class="badge-dir ${badgeClass}">${txtLabel}</span></td>
           <td>${qualHTML}</td>
         </tr>`;
-      }
     } catch (err) {
       console.error(key, err);
       htmlBuffer += `<tr><td>${assetInfo.name}</td><td colspan="3" style="color:var(--muted);font-size:10px;">ERROR</td></tr>`;
@@ -775,17 +821,22 @@ async function resolvePendingEntries() {
     if (!assetInfo) { entry.result = 'lose'; changed = true; continue; }
 
     try {
-      const binInterval = entry.expirySec <= 60 ? '1m' : entry.expirySec <= 300 ? '5m' : '15m';
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binInterval}&limit=3`);
-      if (res.ok) {
+      let closePrice;
+      if (assetInfo.source === 'forex') {
+        // ดึงราคาล่าสุดจาก Frankfurter
+        const fxKlines = await fetchForexKlines(assetInfo.fxBase, assetInfo.fxQuote, entry.expirySec / 60);
+        closePrice = parseFloat(fxKlines[fxKlines.length - 1][4]);
+      } else {
+        const binInterval = entry.expirySec <= 60 ? '1m' : entry.expirySec <= 300 ? '5m' : '15m';
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binInterval}&limit=3`);
+        if (!res.ok) continue;
         const klines = await res.json();
-        // ราคา close แท่งล่าสุดที่ปิดสมบูรณ์แล้ว (index -2 คือแท่งก่อนหน้า = แท่งที่ปิดแน่นอน)
-        const closePrice = parseFloat(klines[klines.length - 2][4]);
-        if (entry.dir === 'buy')  entry.result = closePrice > entry.entryPrice ? 'win' : 'lose';
-        if (entry.dir === 'sell') entry.result = closePrice < entry.entryPrice ? 'win' : 'lose';
-        entry.closePrice = closePrice;
-        changed = true;
+        closePrice = parseFloat(klines[klines.length - 2][4]);
       }
+      if (entry.dir === 'buy')  entry.result = closePrice > entry.entryPrice ? 'win' : 'lose';
+      if (entry.dir === 'sell') entry.result = closePrice < entry.entryPrice ? 'win' : 'lose';
+      entry.closePrice = closePrice;
+      changed = true;
     } catch(e) { /* ปล่อยเป็น pending ต่อ */ }
   }
 
