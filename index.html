@@ -12,6 +12,7 @@
   --green:#00e676;--green-dim:rgba(0,230,118,0.12);
   --red:#ff4444;--red-dim:rgba(255,68,68,0.12);
   --blue:#4fc3f7;--blue-dim:rgba(79,195,247,0.12);
+  --orange:#ff9800;--orange-dim:rgba(255,152,0,0.12);
   --muted:#555570;--text:#e8e8f0;--text2:#9090a8;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -19,69 +20,70 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--panel);}
 .logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;}
 .logo small{color:var(--text2);font-size:11px;font-weight:400;}
+.header-right{display:flex;align-items:center;gap:12px;}
 .live-badge{display:flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid rgba(0,230,118,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--green);font-family:'Space Mono',monospace;}
 .live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
+#lastUpdate{font-size:10px;color:var(--text2);font-family:'Space Mono',monospace;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 .layout{display:grid;grid-template-columns:1fr 340px;height:calc(100vh - 53px);}
 @media(max-width:960px){.layout{grid-template-columns:1fr;height:auto;}}
 .left{display:flex;flex-direction:column;overflow:hidden;background:#000;}
-.chart-container-tv { flex:1; width:100%; height:100%; min-height:450px; position:relative; }
+.chart-container-tv{flex:1;width:100%;height:100%;min-height:450px;position:relative;}
 .price-bar{display:flex;align-items:flex-end;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--panel) 0%,var(--bg) 100%);}
 .price-big{font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1;}
 .price-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:4px;}
 .price-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+
+/* FILTER QUALITY BADGE */
+.quality-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;}
+.quality-badge.strong{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+.quality-badge.normal{background:rgba(245,200,66,0.12);color:var(--gold);border:1px solid rgba(245,200,66,0.3);}
+.quality-badge.weak{background:rgba(255,68,68,0.1);color:#ff8080;border:1px solid rgba(255,68,68,0.2);}
+.quality-badge.filtered{background:var(--panel2);color:var(--muted);border:1px solid var(--border);}
+
 .sidebar{border-left:1px solid var(--border);background:var(--panel);overflow-y:auto;display:flex;flex-direction:column;}
 .sidebar::-webkit-scrollbar{width:4px;}
 .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .sec{padding:18px;border-bottom:1px solid var(--border);}
 .sec-title{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:14px;}
 
-.asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.asset-btn {
-  padding: 10px; background: var(--panel2); border: 1px solid var(--border);
-  color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px;
-  font-weight: 700; border-radius: 6px; cursor: pointer; text-align: left;
-  display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;
-}
-.asset-btn span.type-badge { font-size: 8px; background: var(--bg); padding: 2px 5px; border-radius: 4px; color: var(--text2); text-transform: uppercase; }
-.asset-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
-.asset-btn.active span.type-badge { background: var(--gold); color: var(--bg); }
+.asset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.asset-btn{padding:10px;background:var(--panel2);border:1px solid var(--border);color:var(--text2);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s;}
+.asset-btn span.type-badge{font-size:8px;background:var(--bg);padding:2px 5px;border-radius:4px;color:var(--text2);text-transform:uppercase;}
+.asset-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.asset-btn.active span.type-badge{background:var(--gold);color:var(--bg);}
 
-.selector-wrap { display: flex; gap: 6px; margin-bottom: 12px; }
-.select-btn {
-  flex: 1; padding: 8px; background: var(--panel2); border: 1px solid var(--border);
-  color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px;
-  font-weight: 700; border-radius: 6px; cursor: pointer; transition: all 0.2s;
-}
-.select-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+.selector-wrap{display:flex;gap:6px;margin-bottom:12px;}
+.select-btn{flex:1;padding:8px;background:var(--panel2);border:1px solid var(--border);color:var(--text2);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.select-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
 
-.signal-container-relative { position: relative; overflow: hidden; border-radius: 10px; }
-.signal-lock-overlay {
-  position: absolute; inset: 0; background: rgba(11, 11, 18, 0.98);
-  border: 1px dashed var(--gold); border-radius: 10px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  z-index: 10; padding: 20px; text-align: center; backdrop-filter: blur(6px);
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-}
+/* FILTER STRENGTH SELECTOR */
+.filter-row{display:flex;gap:6px;margin-top:10px;}
+.filter-chip{flex:1;padding:7px 6px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;text-align:center;transition:all 0.2s;}
+.filter-chip.active-f{border-color:var(--blue);color:var(--blue);background:var(--blue-dim);}
+.filter-chip.active-f.tight{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+.filter-chip.active-f.loose{border-color:var(--orange);color:var(--orange);background:var(--orange-dim);}
+.filter-info{margin-top:8px;padding:8px 10px;background:var(--panel2);border-radius:6px;font-size:10px;color:var(--text2);font-family:'Space Mono',monospace;border-left:2px solid var(--blue);line-height:1.6;}
 
-/* TVE ANIMATION LOGO */
-.tve-anim-wrap { position: relative; width: 140px; height: 140px; margin-bottom: 10px; flex-shrink: 0; }
-.tve-ring-outer { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--gold); border-right-color: rgba(245, 200, 66, 0.25); animation: spinCW 3s linear infinite; }
-.tve-ring-mid { position: absolute; inset: 12px; border-radius: 50%; border: 1.5px solid transparent; border-bottom-color: #4fc3f7; border-left-color: rgba(79, 195, 247, 0.2); animation: spinCCW 2.2s linear infinite; }
-.tve-ring-inner { position: absolute; inset: 24px; border-radius: 50%; border: 1px solid rgba(245, 200, 66, 0.12); animation: breathe 2.8s ease-in-out infinite; }
-.tve-orbit-gold { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px 4px rgba(245, 200, 66, 0.65); animation: orbitGold 3s linear infinite; }
-.tve-hex-svg { position: absolute; inset: 32px; filter: drop-shadow(0 0 8px rgba(245, 200, 66, 0.45)); animation: breathe 3s ease-in-out infinite alternate; }
-.tve-center-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-.tve-letters { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-shadow: 0 0 14px rgba(245, 200, 66, 0.8); }
-.tve-particles { position: absolute; inset: 0; pointer-events: none; }
-.tve-star { position: absolute; width: 2px; height: 2px; background: var(--gold); border-radius: 50%; opacity: 0; animation: twinkle var(--dur, 2s) ease-in-out infinite var(--delay, 0s); }
+.signal-container-relative{position:relative;overflow:hidden;border-radius:10px;}
+.signal-lock-overlay{position:absolute;inset:0;background:rgba(11,11,18,0.98);border:1px dashed var(--gold);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center;backdrop-filter:blur(6px);transition:opacity 0.4s ease,visibility 0.4s ease;}
 
-@keyframes spinCW   { to { transform: rotate(360deg) } }
-@keyframes spinCCW  { to { transform: rotate(-360deg) } }
-@keyframes breathe  { 0%, 100% { opacity: .45; transform: scale(.96) } 50% { opacity: 1; transform: scale(1.04) } }
-@keyframes twinkle  { 0%, 100% { opacity: 0; transform: scale(.5) } 50% { opacity: 1; transform: scale(1.3) } }
-@keyframes orbitGold { from { transform: rotate(0deg) translateX(58px) rotate(0deg) } to { transform: rotate(360deg) translateX(58px) rotate(-360deg) } }
-.tve-ecosystem-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; color: rgba(245, 200, 66, 0.5); text-transform: uppercase; margin-bottom: 6px; }
+.tve-anim-wrap{position:relative;width:140px;height:140px;margin-bottom:10px;flex-shrink:0;}
+.tve-ring-outer{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:var(--gold);border-right-color:rgba(245,200,66,0.25);animation:spinCW 3s linear infinite;}
+.tve-ring-mid{position:absolute;inset:12px;border-radius:50%;border:1.5px solid transparent;border-bottom-color:#4fc3f7;border-left-color:rgba(79,195,247,0.2);animation:spinCCW 2.2s linear infinite;}
+.tve-ring-inner{position:absolute;inset:24px;border-radius:50%;border:1px solid rgba(245,200,66,0.12);animation:breathe 2.8s ease-in-out infinite;}
+.tve-orbit-gold{position:absolute;top:50%;left:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px 4px rgba(245,200,66,0.65);animation:orbitGold 3s linear infinite;}
+.tve-hex-svg{position:absolute;inset:32px;filter:drop-shadow(0 0 8px rgba(245,200,66,0.45));animation:breathe 3s ease-in-out infinite alternate;}
+.tve-center-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.tve-letters{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--gold);letter-spacing:3px;text-shadow:0 0 14px rgba(245,200,66,0.8);}
+.tve-particles{position:absolute;inset:0;pointer-events:none;}
+.tve-star{position:absolute;width:2px;height:2px;background:var(--gold);border-radius:50%;opacity:0;animation:twinkle var(--dur,2s) ease-in-out infinite var(--delay,0s);}
+
+@keyframes spinCW{to{transform:rotate(360deg)}}
+@keyframes spinCCW{to{transform:rotate(-360deg)}}
+@keyframes breathe{0%,100%{opacity:.45;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes orbitGold{from{transform:rotate(0deg) translateX(58px) rotate(0deg)}to{transform:rotate(360deg) translateX(58px) rotate(-360deg)}}
 
 .lock-title{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--gold);font-family:'Space Mono',monospace;letter-spacing:1px;}
 .lock-desc{font-size:11px;color:var(--text2);margin-bottom:14px;}
@@ -92,24 +94,70 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .lock-error{color:var(--red);font-size:11px;margin-top:8px;font-family:'Space Mono',monospace;display:none;}
 .welcome-user{font-size:11px;color:var(--green);font-family:'Space Mono',monospace;margin-bottom:10px;text-align:center;display:none;}
 
-.tg-input { width: 100%; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 11px; margin-bottom: 8px; outline: none; }
-.tg-input:focus { border-color: var(--blue); }
-.tg-save-btn { width: 100%; background: var(--blue-dim); border: 1px solid rgba(79,195,247,0.4); color: var(--blue); padding: 8px; font-weight: 600; font-size: 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-.tg-save-btn:hover { background: rgba(79,195,247,0.25); border-color: var(--blue); }
+.tg-input{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:11px;margin-bottom:8px;outline:none;}
+.tg-input:focus{border-color:var(--blue);}
+.tg-save-btn{width:100%;background:var(--blue-dim);border:1px solid rgba(79,195,247,0.4);color:var(--blue);padding:8px;font-weight:600;font-size:12px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.tg-save-btn:hover{background:rgba(79,195,247,0.25);border-color:var(--blue);}
 
-.multi-panel-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-family: 'Space Mono', monospace; font-size: 11px; }
-.multi-panel-table th { text-align: left; padding: 6px 8px; color: var(--muted); border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; }
-.multi-panel-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
-.badge-dir { padding: 2px 5px; border-radius: 4px; font-weight: 700; font-size: 10px; }
-.badge-dir.buy { background: var(--green-dim); color: var(--green); }
-.badge-dir.sell { background: var(--red-dim); color: var(--red); }
-.badge-dir.hold { background: var(--panel2); color: var(--text2); }
+.multi-panel-table{width:100%;border-collapse:collapse;margin-top:5px;font-family:'Space Mono',monospace;font-size:11px;}
+.multi-panel-table th{text-align:left;padding:6px 8px;color:var(--muted);border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;}
+.multi-panel-table td{padding:7px 8px;border-bottom:1px solid var(--border);color:var(--text);}
+.badge-dir{padding:2px 5px;border-radius:4px;font-weight:700;font-size:10px;}
+.badge-dir.buy{background:var(--green-dim);color:var(--green);}
+.badge-dir.sell{background:var(--red-dim);color:var(--red);}
+.badge-dir.hold{background:var(--panel2);color:var(--text2);}
+.badge-dir.filtered-out{background:rgba(255,152,0,0.08);color:var(--orange);border:1px solid rgba(255,152,0,0.2);}
 
-.refresh-btn{margin:16px;padding:11px;background:var(--gold-dim);border:1px solid rgba(245,200,66,0.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:calc(100% - 32px);letter-spacing:0.5px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+/* FILTER STATS BAR */
+.filter-stats{display:flex;gap:8px;padding:10px 18px;background:var(--panel2);border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;font-size:10px;}
+.fstat{text-align:center;}
+.fstat-num{font-size:15px;font-weight:700;color:var(--gold);}
+.fstat-lbl{color:var(--muted);font-size:9px;margin-top:2px;}
+.fstat-divider{width:1px;background:var(--border);}
+
+/* REFRESH BTN - improved */
+.refresh-btn{margin:16px;padding:12px;background:var(--gold-dim);border:1px solid rgba(245,200,66,0.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:calc(100% - 32px);letter-spacing:0.5px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.refresh-btn:hover{background:rgba(245,200,66,0.2);border-color:var(--gold);}
+.refresh-btn:active{transform:scale(0.98);}
+.refresh-btn.spinning .spin-icon{animation:spinCW 0.7s linear infinite;}
+.refresh-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.spin-icon{display:inline-block;transition:transform 0.2s;}
+
+/* ─── DAILY SUMMARY PANEL ─────────────────────────────────────────────────── */
+.daily-panel{padding:14px 18px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(245,200,66,0.04) 0%,transparent 100%);}
+.daily-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.daily-title{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:700;}
+.daily-date{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
+.daily-reset-btn{font-family:'Space Mono',monospace;font-size:9px;color:var(--red);background:var(--red-dim);border:1px solid rgba(255,68,68,0.2);border-radius:4px;padding:2px 7px;cursor:pointer;transition:all 0.2s;}
+.daily-reset-btn:hover{background:rgba(255,68,68,0.2);}
+
+.daily-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+.daily-kpi{background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:8px 6px;text-align:center;}
+.daily-kpi-num{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;line-height:1;}
+.daily-kpi-lbl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-top:3px;text-transform:uppercase;}
+.daily-kpi.win .daily-kpi-num{color:var(--green);}
+.daily-kpi.lose .daily-kpi-num{color:var(--red);}
+.daily-kpi.total .daily-kpi-num{color:var(--gold);}
+.daily-kpi.rate .daily-kpi-num{color:var(--blue);}
+
+.daily-winrate-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:10px;}
+.daily-winrate-fill{height:100%;border-radius:3px;transition:width 0.6s ease;background:linear-gradient(90deg,var(--green),#00ffaa);}
+
+.daily-log-wrap{max-height:130px;overflow-y:auto;}
+.daily-log-wrap::-webkit-scrollbar{width:3px;}
+.daily-log-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.daily-log-table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:10px;}
+.daily-log-table th{color:var(--muted);padding:3px 5px;text-align:left;font-size:9px;border-bottom:1px solid var(--border);}
+.daily-log-table td{padding:4px 5px;border-bottom:1px solid rgba(30,30,46,0.5);color:var(--text2);}
+.result-win{color:var(--green);font-weight:700;}
+.result-lose{color:var(--red);font-weight:700;}
+.result-pending{color:var(--gold);font-size:9px;}
+.dir-call{color:var(--green);}
+.dir-put{color:var(--red);}
+.daily-empty{text-align:center;padding:16px;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;}
 </style>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -142,7 +190,6 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
         const welcome = document.getElementById('welcomeUser');
         welcome.textContent = `Options Premium: ${userData.customer_name}`;
         welcome.style.display = 'block';
-        
         loadUserTelegramKeys();
         runMultiScanner();
       } else {
@@ -180,9 +227,8 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 
   <div class="sidebar">
     <div class="sec">
-      <div class="sec-title">เปิด/ปิด คู่สินทรัพย์ตรวจสัญญาณ (เลือกได้พร้อมกัน)</div>
+      <div class="sec-title">เปิด/ปิด คู่สินทรัพย์ตรวจสัญญาณ</div>
       <div class="asset-grid">
-        <!-- ⚡ แผงปุ่ม 8 สินทรัพย์ท็อปพรีเมียมเปิดครบไลน์ -->
         <button class="asset-btn active" id="asset-XAUUSD" onclick="toggleAssetSelection('XAUUSD')">💰 XAUUSD <span class="type-badge">Gold</span></button>
         <button class="asset-btn active" id="asset-BTCUSD" onclick="toggleAssetSelection('BTCUSD')">₿ BTCUSD <span class="type-badge">Crypto</span></button>
         <button class="asset-btn" id="asset-ETHUSD" onclick="toggleAssetSelection('ETHUSD')">♦ ETHUSD <span class="type-badge">Crypto</span></button>
@@ -201,6 +247,17 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
         <button class="select-btn" id="tfH1" onclick="changeTF('60')">5 MIN</button>
         <button class="select-btn" id="tfH4" onclick="changeTF('240')">15 MIN</button>
       </div>
+
+      <!-- ▼ ระบบตั้งค่าความเข้มของฟิลเตอร์ใหม่ -->
+      <div class="sec-title" style="margin-top:12px;">🛡️ ระดับฟิลเตอร์กรองสัญญาณหลอก</div>
+      <div class="filter-row">
+        <div class="filter-chip loose" id="fLoose" onclick="setFilterLevel('loose')">⚡ LOOSE</div>
+        <div class="filter-chip active-f" id="fNormal" onclick="setFilterLevel('normal')">⚖️ NORMAL</div>
+        <div class="filter-chip tight" id="fTight" onclick="setFilterLevel('tight')">🔒 TIGHT</div>
+      </div>
+      <div class="filter-info" id="filterDesc">
+        <b>NORMAL:</b> EMA cross + RSI ออก neutral zone (35–65) + Volume เหนือ avg ×1.1
+      </div>
     </div>
 
     <div class="sec">
@@ -212,13 +269,47 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 
     <div class="welcome-user" id="welcomeUser"></div>
 
-    <div class="sec" style="flex: 1;">
+    <!-- FILTER STATS BAR -->
+    <div class="filter-stats">
+      <div class="fstat"><div class="fstat-num" id="statTotal">0</div><div class="fstat-lbl">สแกนทั้งหมด</div></div>
+      <div class="fstat-divider"></div>
+      <div class="fstat"><div class="fstat-num" style="color:var(--green)" id="statSignal">0</div><div class="fstat-lbl">สัญญาณผ่าน</div></div>
+      <div class="fstat-divider"></div>
+      <div class="fstat"><div class="fstat-num" style="color:var(--orange)" id="statFiltered">0</div><div class="fstat-lbl">กรองออก</div></div>
+      <div class="fstat-divider"></div>
+      <div class="fstat"><div class="fstat-num" style="color:var(--blue)" id="statAccuracy">—</div><div class="fstat-lbl">Signal Rate</div></div>
+    </div>
+
+    <!-- ─── DAILY SUMMARY PANEL ─── -->
+    <div class="daily-panel">
+      <div class="daily-header">
+        <span class="daily-title">📊 สรุปรายวัน</span>
+        <span class="daily-date" id="dailyDate">—</span>
+        <button class="daily-reset-btn" onclick="resetDailyLog()">✕ ล้างวันนี้</button>
+      </div>
+      <div class="daily-kpi-row">
+        <div class="daily-kpi total"><div class="daily-kpi-num" id="dTotal">0</div><div class="daily-kpi-lbl">ส่งทั้งหมด</div></div>
+        <div class="daily-kpi win">  <div class="daily-kpi-num" id="dWin">0</div>  <div class="daily-kpi-lbl">ชนะ ✓</div></div>
+        <div class="daily-kpi lose"> <div class="daily-kpi-num" id="dLose">0</div> <div class="daily-kpi-lbl">แพ้ ✗</div></div>
+        <div class="daily-kpi rate"> <div class="daily-kpi-num" id="dRate">—</div> <div class="daily-kpi-lbl">Win Rate</div></div>
+      </div>
+      <div class="daily-winrate-bar"><div class="daily-winrate-fill" id="dWinBar" style="width:0%"></div></div>
+      <div class="daily-log-wrap">
+        <table class="daily-log-table">
+          <thead><tr><th>เวลา</th><th>คู่</th><th>ทิศ</th><th>Entry</th><th>ผล</th></tr></thead>
+          <tbody id="dailyLogBody"><tr><td colspan="5" class="daily-empty">ยังไม่มีสัญญาณวันนี้</td></tr></tbody>
+        </table>
+      </div>
+      <button id="midnightSendBtn" onclick="sendDailySummaryNow()" style="margin-top:10px;width:100%;padding:8px;background:rgba(79,195,247,0.08);border:1px solid rgba(79,195,247,0.25);border-radius:6px;color:var(--blue);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">📤 ส่งสรุปเข้า Telegram ตอนนี้</button>
+      <div style="margin-top:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-align:center;">ส่งอัตโนมัติทุกเที่ยงคืน BKK</div>
+    </div>
+
+    <div class="sec" style="flex:1;">
       <div class="sec-title">มอนิเตอร์บอร์ดเรียลไทม์ (8-Asset Live Grid)</div>
 
       <div class="signal-container-relative">
         <div class="signal-lock-overlay" id="lockOverlay">
           <div class="tve-anim-wrap">
-            <div class="tve-scan"></div>
             <div class="tve-ring-outer"></div>
             <div class="tve-ring-mid"></div>
             <div class="tve-ring-inner"></div>
@@ -242,8 +333,9 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
           <thead>
             <tr>
               <th>สินทรัพย์</th>
-              <th>ราคาปัจจุบัน</th>
-              <th>สัญญาณเรดาร์</th>
+              <th>ราคา</th>
+              <th>สัญญาณ</th>
+              <th>คุณภาพ</th>
             </tr>
           </thead>
           <tbody id="multiAssetTableBody"></tbody>
@@ -251,11 +343,16 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
       </div>
     </div>
 
-    <button class="refresh-btn" onclick="runMultiScanner()">↻ สั่งคัดกรองรอบใหม่ทันที</button>
+    <!-- REFRESH BTN - fixed with reset logic -->
+    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
+      <span class="spin-icon" id="refreshIcon">↻</span>
+      <span id="refreshLabel">สั่งคัดกรองรอบใหม่ + ล้างสัญญาณเก่า</span>
+    </button>
   </div>
 </div>
 
 <script>
+// ─── PARTICLES ────────────────────────────────────────────────────────────────
 (function() {
   const container = document.getElementById('tveParticles');
   if (!container) return;
@@ -268,32 +365,223 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
   }
 })();
 
-window.isUnlocked = false; 
-let currentTimeframeMinutes = '15'; 
-let lastSentSignals = {}; 
+// ─── STATE ────────────────────────────────────────────────────────────────────
+window.isUnlocked = false;
+let currentTimeframeMinutes = '15';
+let lastSentSignals = {};
 let chartFocusAsset = 'XAUUSD';
+let filterLevel = 'normal'; // 'loose' | 'normal' | 'tight'
+let scanStats = { total: 0, signal: 0, filtered: 0 };
 
-// 📊 ผังจับคู่สัญลักษณ์เพื่อซิงก์ดึงราคากลางทั่วโลกแบบเรียลไทม์
-const assetMap = {
-  XAUUSD: { tvSymbol: "FX_IDC:XAUUSD", binanceSymbol: "PAXGUSDT", active: true, name: "💰 XAUUSD" },
-  BTCUSD: { tvSymbol: "BINANCE:BTCUSDT", binanceSymbol: "BTCUSDT", active: true, name: "₿ BTCUSD" },
-  ETHUSD: { tvSymbol: "BINANCE:ETHUSDT", binanceSymbol: "ETHUSDT", active: false, name: "♦ ETHUSD" },
-  SOLUSD: { tvSymbol: "BINANCE:SOLUSDT", binanceSymbol: "SOLUSDT", active: false, name: "🪙 SOLUSD" },
-  EURUSD: { tvSymbol: "FX:EURUSD", binanceSymbol: "EURUSDT", active: false, name: "🇪🇺 EURUSD" },
-  GBPUSD: { tvSymbol: "FX:GBPUSD", binanceSymbol: "GBPUSDT", active: false, name: "🇬🇧 GBPUSD" },
-  USDJPY: { tvSymbol: "FX:USDJPY", binanceSymbol: "USDJPY", active: false, name: "🇯🇵 USDJPY" },
-  AUDUSD: { tvSymbol: "FX:AUDUSD", binanceSymbol: "AUDUSDT", active: false, name: "🇦🇺 AUDUSD" }
+// ─── FILTER CONFIG ────────────────────────────────────────────────────────────
+const FILTER_CONFIG = {
+  loose: {
+    rsiOverbought: 75, rsiOversold: 25,      // กรองแค่ extreme RSI
+    volMultiplier: 1.0,                       // ไม่กรอง volume
+    candleBodyRatio: 0.3,                     // แท่งเทียน body 30%+ ก็ผ่าน
+    requireConfirmBars: 1,                    // ยืนยัน 1 แท่ง
+    desc: '<b>LOOSE:</b> กรองเบา — EMA cross + RSI (25–75) เท่านั้น เหมาะกับตลาด trending'
+  },
+  normal: {
+    rsiOverbought: 65, rsiOversold: 35,
+    volMultiplier: 1.1,                       // vol ต้องเหนือ avg ×1.1
+    candleBodyRatio: 0.45,
+    requireConfirmBars: 1,
+    desc: '<b>NORMAL:</b> EMA cross + RSI ออก neutral zone (35–65) + Volume เหนือ avg ×1.1'
+  },
+  tight: {
+    rsiOverbought: 60, rsiOversold: 40,
+    volMultiplier: 1.3,                       // vol ต้องเหนือ avg ×1.3
+    candleBodyRatio: 0.55,
+    requireConfirmBars: 2,                    // ยืนยัน 2 แท่งต่อเนื่อง
+    desc: '<b>TIGHT:</b> กรองเข้มสูงสุด — RSI (40–60) + Volume ×1.3 + Body ratio 55% + ยืนยัน 2 แท่ง'
+  }
 };
 
+// ─── ASSET MAP ────────────────────────────────────────────────────────────────
+const assetMap = {
+  XAUUSD: { tvSymbol: "FX_IDC:XAUUSD",    binanceSymbol: "PAXGUSDT", active: true,  name: "💰 XAUUSD" },
+  BTCUSD: { tvSymbol: "BINANCE:BTCUSDT",  binanceSymbol: "BTCUSDT",  active: true,  name: "₿ BTCUSD"  },
+  ETHUSD: { tvSymbol: "BINANCE:ETHUSDT",  binanceSymbol: "ETHUSDT",  active: false, name: "♦ ETHUSD"  },
+  SOLUSD: { tvSymbol: "BINANCE:SOLUSDT",  binanceSymbol: "SOLUSDT",  active: false, name: "🪙 SOLUSD"  },
+  EURUSD: { tvSymbol: "FX:EURUSD",        binanceSymbol: "EURUSDT",  active: false, name: "🇪🇺 EURUSD"  },
+  GBPUSD: { tvSymbol: "FX:GBPUSD",        binanceSymbol: "GBPUSDT",  active: false, name: "🇬🇧 GBPUSD"  },
+  USDJPY: { tvSymbol: "FX:USDJPY",        binanceSymbol: "USDJPY",   active: false, name: "🇯🇵 USDJPY"  },
+  AUDUSD: { tvSymbol: "FX:AUDUSD",        binanceSymbol: "AUDUSDT",  active: false, name: "🇦🇺 AUDUSD"  }
+};
+
+// ─── FILTER LEVEL SELECTOR ────────────────────────────────────────────────────
+window.setFilterLevel = function(level) {
+  filterLevel = level;
+  document.getElementById('fLoose').classList.toggle('active-f', level === 'loose');
+  document.getElementById('fLoose').classList.toggle('loose', level === 'loose');
+  document.getElementById('fNormal').classList.toggle('active-f', level === 'normal');
+  document.getElementById('fTight').classList.toggle('active-f', level === 'tight');
+  document.getElementById('fTight').classList.toggle('tight', level === 'tight');
+  document.getElementById('filterDesc').innerHTML = FILTER_CONFIG[level].desc;
+  lastSentSignals = {}; // reset เมื่อเปลี่ยน filter
+  runMultiScanner();
+};
+
+// ─── INDICATOR CALCULATIONS ───────────────────────────────────────────────────
+function calcEMA(prices, period) {
+  const k = 2 / (period + 1);
+  let ema = prices[0];
+  for (let i = 1; i < prices.length; i++) ema = prices[i] * k + ema * (1 - k);
+  return ema;
+}
+
+function calcRSI(prices, period = 14) {
+  if (prices.length < period + 1) return 50;
+  let gains = 0, losses = 0;
+  for (let i = prices.length - period; i < prices.length; i++) {
+    const diff = prices[i] - prices[i - 1];
+    if (diff > 0) gains += diff;
+    else losses += Math.abs(diff);
+  }
+  const avgGain = gains / period;
+  const avgLoss = losses / period;
+  if (avgLoss === 0) return 100;
+  const rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+}
+
+function calcAvgVolume(klines, period = 20) {
+  const vols = klines.slice(-period - 1, -1).map(c => parseFloat(c[5]));
+  return vols.reduce((a, b) => a + b, 0) / vols.length;
+}
+
+function getCandleBodyRatio(kline) {
+  const open  = parseFloat(kline[1]);
+  const high  = parseFloat(kline[2]);
+  const low   = parseFloat(kline[3]);
+  const close = parseFloat(kline[4]);
+  const totalRange = high - low;
+  if (totalRange === 0) return 0;
+  return Math.abs(close - open) / totalRange;
+}
+
+// ─── MAIN SIGNAL ANALYSIS (upgraded) ─────────────────────────────────────────
+function analyzeAssetData(klines) {
+  if (!klines || klines.length < 55) return { direction: 'hold', quality: 'filtered', reason: 'ข้อมูลไม่พอ' };
+
+  const cfg = FILTER_CONFIG[filterLevel];
+  const closePrices = klines.map(c => parseFloat(c[4]));
+  const len = closePrices.length;
+
+  // ── 1) EMA Trend Core ──
+  const currentPrice = closePrices[len - 1];
+  const ema50  = calcEMA(closePrices, 50);
+  const ema9   = calcEMA(closePrices, 9);
+  const ema21  = calcEMA(closePrices, 21);
+
+  let rawDir = 'hold';
+  if (currentPrice > ema50 && ema9 > ema21) rawDir = 'buy';
+  if (currentPrice < ema50 && ema9 < ema21) rawDir = 'sell';
+  if (rawDir === 'hold') return { direction: 'hold', quality: 'hold', reason: 'EMA ไม่ชัด' };
+
+  // ── 2) RSI Filter ──
+  const rsi = calcRSI(closePrices, 14);
+  const rsiOk = (rawDir === 'buy'  && rsi > cfg.rsiOversold  && rsi < cfg.rsiOverbought) ||
+                (rawDir === 'sell' && rsi < cfg.rsiOverbought && rsi > cfg.rsiOversold);
+  if (!rsiOk) {
+    return { direction: rawDir, quality: 'filtered', reason: `RSI ${rsi.toFixed(0)} ไม่ผ่านโซน` };
+  }
+
+  // ── 3) Volume Filter ──
+  const currentVol = parseFloat(klines[len - 1][5]);
+  const avgVol = calcAvgVolume(klines, 20);
+  const volOk = avgVol === 0 || currentVol >= avgVol * cfg.volMultiplier;
+  if (!volOk) {
+    return { direction: rawDir, quality: 'filtered', reason: `Vol ต่ำ (${(currentVol/avgVol).toFixed(2)}x avg)` };
+  }
+
+  // ── 4) Candle Body Filter ──
+  const bodyRatio = getCandleBodyRatio(klines[len - 1]);
+  if (bodyRatio < cfg.candleBodyRatio) {
+    return { direction: rawDir, quality: 'filtered', reason: `Doji/แท่งเทียนอ่อน (body ${(bodyRatio*100).toFixed(0)}%)` };
+  }
+
+  // ── 5) Confirmation Bars (TIGHT mode: ยืนยัน 2 แท่งต่อเนื่อง) ──
+  if (cfg.requireConfirmBars >= 2) {
+    const prevClose = closePrices[len - 2];
+    const prevOpen  = parseFloat(klines[len - 2][1]);
+    const prevIsBull = prevClose > prevOpen;
+    const curIsBull  = closePrices[len - 1] > parseFloat(klines[len - 1][1]);
+    if (rawDir === 'buy'  && !(prevIsBull && curIsBull))  return { direction: rawDir, quality: 'filtered', reason: 'ไม่มี 2 แท่งยืนยัน' };
+    if (rawDir === 'sell' && !(!prevIsBull && !curIsBull)) return { direction: rawDir, quality: 'filtered', reason: 'ไม่มี 2 แท่งยืนยัน' };
+  }
+
+  // ── 6) Quality Score ──
+  let qualityScore = 0;
+  if (rsi > 55 && rawDir === 'buy')  qualityScore += 2;
+  if (rsi < 45 && rawDir === 'sell') qualityScore += 2;
+  if (currentVol >= avgVol * 1.4)    qualityScore += 2;
+  if (bodyRatio >= 0.65)             qualityScore += 1;
+  const quality = qualityScore >= 4 ? 'strong' : qualityScore >= 2 ? 'normal' : 'weak';
+
+  return { direction: rawDir, quality, reason: `RSI ${rsi.toFixed(0)} | Vol ${(currentVol/avgVol).toFixed(1)}x` };
+}
+
+// ─── TELEGRAM ────────────────────────────────────────────────────────────────
 window.saveUserTelegramKeys = function() {
-  localStorage.setItem('tve_user_token', document.getElementById('userTgToken').value.trim());
+  localStorage.setItem('tve_user_token',  document.getElementById('userTgToken').value.trim());
   localStorage.setItem('tve_user_chatid', document.getElementById('userTgChatId').value.trim());
   alert("✨ บันทึกเรียบร้อย! สแกนเนอร์จะคอยเฝ้าระวังสินทรัพย์ทั้ง 8 ตัวให้แบบขนานครับ");
 }
 
 function loadUserTelegramKeys() {
-  if(localStorage.getItem('tve_user_token')) document.getElementById('userTgToken').value = localStorage.getItem('tve_user_token');
+  if(localStorage.getItem('tve_user_token'))  document.getElementById('userTgToken').value  = localStorage.getItem('tve_user_token');
   if(localStorage.getItem('tve_user_chatid')) document.getElementById('userTgChatId').value = localStorage.getItem('tve_user_chatid');
+}
+
+async function sendSignalTelegram(assetKey, dir, strikePrice, quality) {
+  const tok = localStorage.getItem('tve_user_token');
+  const cid = localStorage.getItem('tve_user_chatid');
+  if (!tok || !cid) return;
+
+  const uniqueSignalKey = `${assetKey}_${dir}_${currentTimeframeMinutes}_${filterLevel}`;
+  if (lastSentSignals[assetKey] === uniqueSignalKey) return;
+
+  const emoji = dir === 'buy' ? '🟢 [CALL / HIGHER]' : '🔴 [PUT / LOWER]';
+  const qualEmoji = quality === 'strong' ? '⭐⭐⭐ STRONG' : quality === 'normal' ? '⭐⭐ NORMAL' : '⭐ WEAK';
+  const expiryText = currentTimeframeMinutes === '15' ? '1 MIN' : currentTimeframeMinutes === '60' ? '5 MIN' : '15 MIN';
+  const filterText = filterLevel.toUpperCase();
+  const timeStr = new Date().toLocaleTimeString('th-TH');
+
+  const text = encodeURIComponent(
+`🎯 *TVE MULTI-RADAR ALERT* 🎯
+━━━━━━━━━━━━━━━━━━
+สินทรัพย์: *${assetKey}*
+⏱️ หมดอายุ: *${expiryText}*
+ทิศทาง: *${emoji}*
+🛡️ ฟิลเตอร์: *${filterText}* | คุณภาพ: *${qualEmoji}*
+
+📌 *Strike Price: $${strikePrice.toLocaleString('en-US') || strikePrice}*
+⏰ ${timeStr} (BKK)
+━━━━━━━━━━━━━━━━━━
+_ผ่านระบบฟิลเตอร์ ${filterText} · TVE Premium_`
+  );
+
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${tok}/sendMessage?chat_id=${cid}&text=${text}&parse_mode=Markdown`);
+    if(r.ok) {
+      lastSentSignals[assetKey] = uniqueSignalKey;
+      logNewSignal(assetKey, dir, strikePrice, currentTimeframeMinutes);
+    }
+  } catch(e){}
+}
+
+// ─── CHART ────────────────────────────────────────────────────────────────────
+function updateTradingViewChart() {
+  let tvInterval = currentTimeframeMinutes === '15' ? '1' : currentTimeframeMinutes === '60' ? '5' : '15';
+  new TradingView.widget({
+    "width": "100%", "height": "100%",
+    "symbol": assetMap[chartFocusAsset].tvSymbol,
+    "interval": tvInterval, "timezone": "Asia/Bangkok", "theme": "dark",
+    "style": "1", "locale": "th", "container_id": "tv_chart_container",
+    "studies": ["RSI@tv-basicstudies", "MASimple@tv-basicstudies"]
+  });
 }
 
 function toggleAssetSelection(assetKey) {
@@ -312,121 +600,371 @@ function switchChartFocus(key) {
 function changeTF(tfMinutes) {
   currentTimeframeMinutes = tfMinutes;
   document.getElementById('tfM15').classList.toggle('active', tfMinutes === '15');
-  document.getElementById('tfH1').classList.toggle('active', tfMinutes === '60');
-  document.getElementById('tfH4').classList.toggle('active', tfMinutes === '240');
-  updateTradingViewChart(); 
+  document.getElementById('tfH1').classList.toggle('active',  tfMinutes === '60');
+  document.getElementById('tfH4').classList.toggle('active',  tfMinutes === '240');
+  lastSentSignals = {}; // reset เมื่อเปลี่ยน TF
+  updateTradingViewChart();
   runMultiScanner();
 }
 
-function updateTradingViewChart() {
-  let tvInterval = currentTimeframeMinutes === '15' ? '1' : currentTimeframeMinutes === '60' ? '5' : '15';
-  new TradingView.widget({
-    "width": "100%", "height": "100%", "symbol": assetMap[chartFocusAsset].tvSymbol, 
-    "interval": tvInterval, "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "th",
-    "container_id": "tv_chart_container", "studies": ["RSI@tv-basicstudies", "MASimple@tv-basicstudies"]
-  });
-}
+// ─── MANUAL REFRESH (fixed) ───────────────────────────────────────────────────
+window.manualRefresh = async function() {
+  const btn   = document.getElementById('refreshBtn');
+  const icon  = document.getElementById('refreshIcon');
+  const label = document.getElementById('refreshLabel');
 
-function analyzeAssetData(klines) {
-  if (!klines || klines.length < 30) return 'hold';
-  const closePrices = klines.map(c => parseFloat(c[4]));
-  const len = closePrices.length;
+  // ── visual feedback ──
+  btn.disabled = true;
+  btn.classList.add('spinning');
+  label.textContent = 'กำลังล้างแคชและสแกนใหม่...';
 
-  const calcEMA = (prices, period) => {
-    let k = 2 / (period + 1); let ema = prices[0];
-    for (let i = 1; i < prices.length; i++) ema = prices[i] * k + ema * (1 - k);
-    return ema;
-  };
+  // ── reset signal memory ── (นี่คือ bug ของเดิมที่ไม่ reset)
+  lastSentSignals = {};
+  scanStats = { total: 0, signal: 0, filtered: 0 };
 
-  const currentPrice = closePrices[len - 1];
-  const ema50 = calcEMA(closePrices, 50);
-  const ema9 = calcEMA(closePrices, 9);
-  const ema21 = calcEMA(closePrices, 21);
+  await runMultiScanner();
 
-  if (currentPrice > ema50 && ema9 > ema21) return 'buy';
-  if (currentPrice < ema50 && ema9 < ema21) return 'sell';
-  return 'hold';
-}
+  // ── restore button ──
+  btn.disabled = false;
+  btn.classList.remove('spinning');
+  label.textContent = 'สั่งคัดกรองรอบใหม่ + ล้างสัญญาณเก่า';
+};
 
+// ─── MAIN SCANNER ─────────────────────────────────────────────────────────────
 async function runMultiScanner() {
-  let binanceInterval = currentTimeframeMinutes === '15' ? '1m' : currentTimeframeMinutes === '60' ? '5m' : '15m';
+  const binanceInterval = currentTimeframeMinutes === '15' ? '1m' : currentTimeframeMinutes === '60' ? '5m' : '15m';
   const tbody = document.getElementById('multiAssetTableBody');
   let htmlBuffer = "";
+  let localTotal = 0, localSignal = 0, localFiltered = 0;
 
   for (const [key, assetInfo] of Object.entries(assetMap)) {
     if (!assetInfo.active) {
-      htmlBuffer += `<tr><td>${assetInfo.name}</td><td>—</td><td><span class="badge-dir hold">OFFLINE</span></td></tr>`;
+      htmlBuffer += `<tr>
+        <td>${assetInfo.name}</td>
+        <td>—</td>
+        <td><span class="badge-dir hold">OFFLINE</span></td>
+        <td>—</td>
+      </tr>`;
       continue;
     }
 
+    localTotal++;
     try {
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=60`);
+      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=80`);
       if (res.ok) {
-        const klines = await res.json();
-        const price = parseFloat(klines[klines.length - 1][4]);
-        const direction = analyzeAssetData(klines);
-        
-        // ฟอร์แมตทศนิยมตามความเหมาะสมของแต่ละคู่เงิน
-        let decimalPlaces = (key.includes('USD') && !key.includes('XAU') && !key.includes('BTC') && !key.includes('ETH')) ? 4 : (key === 'USDJPY' ? 3 : 2);
-        let fmtPrice = price.toLocaleString('en-US', { minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces });
-        
-        let badgeClass = direction === 'buy' ? 'buy' : direction === 'sell' ? 'sell' : 'hold';
-        let txtLabel = direction === 'buy' ? '▲ CALL' : direction === 'sell' ? '▼ PUT' : '◆ WAIT';
+        const klines  = await res.json();
+        const price   = parseFloat(klines[klines.length - 1][4]);
+        const { direction, quality, reason } = analyzeAssetData(klines);
+
+        // decimal format
+        let dp = (key.includes('USD') && !['XAUUSD','BTCUSD','ETHUSD','SOLUSD'].includes(key)) ? 4 : key === 'USDJPY' ? 3 : 2;
+        let fmtPrice = price.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+
+        let badgeClass, txtLabel, qualHTML;
+        if (quality === 'filtered') {
+          badgeClass = 'filtered-out'; txtLabel = '⚡ FILTERED';
+          qualHTML = `<span class="quality-badge filtered" title="${reason}">🚫 BLOCK</span>`;
+          localFiltered++;
+        } else if (direction === 'hold') {
+          badgeClass = 'hold'; txtLabel = '◆ WAIT';
+          qualHTML = `<span class="quality-badge filtered" title="${reason}">— WAIT</span>`;
+        } else {
+          badgeClass = direction === 'buy' ? 'buy' : 'sell';
+          txtLabel   = direction === 'buy' ? '▲ CALL' : '▼ PUT';
+          const qLabel = quality === 'strong' ? '⭐⭐⭐' : quality === 'normal' ? '⭐⭐' : '⭐';
+          qualHTML = `<span class="quality-badge ${quality}" title="${reason}">${qLabel} ${quality.toUpperCase()}</span>`;
+          localSignal++;
+          if (window.isUnlocked) {
+            sendSignalTelegram(key, direction, price, quality);
+            // logNewSignal จะถูกเรียกใน sendSignalTelegram เมื่อส่ง Telegram สำเร็จ
+            // กรณีไม่มี Telegram token ให้ log โดยตรง
+            const tok = localStorage.getItem('tve_user_token');
+            const cid = localStorage.getItem('tve_user_chatid');
+            if (!tok || !cid) logNewSignal(key, direction, price, currentTimeframeMinutes);
+          }
+        }
 
         htmlBuffer += `<tr>
-          <td style="cursor:pointer; font-weight:700; color:var(--blue);" onclick="switchChartFocus('${key}')">🔗 ${assetInfo.name}</td>
+          <td style="cursor:pointer;font-weight:700;color:var(--blue);" onclick="switchChartFocus('${key}')">🔗 ${assetInfo.name}</td>
           <td><b>$${fmtPrice}</b></td>
           <td><span class="badge-dir ${badgeClass}">${txtLabel}</span></td>
+          <td>${qualHTML}</td>
         </tr>`;
-
-        if (direction !== 'hold' && window.isUnlocked) {
-          sendSignalTelegram(key, direction, price);
-        }
       }
     } catch (err) {
-      console.error(err);
+      console.error(key, err);
+      htmlBuffer += `<tr><td>${assetInfo.name}</td><td colspan="3" style="color:var(--muted);font-size:10px;">ERROR</td></tr>`;
     }
   }
 
   tbody.innerHTML = htmlBuffer;
-  document.getElementById('lastUpdate').textContent = 'มัลติสแกนล่าสุด ' + new Date().toLocaleTimeString('th-TH');
+
+  // ── update stats bar ──
+  scanStats = { total: localTotal, signal: localSignal, filtered: localFiltered };
+  document.getElementById('statTotal').textContent    = localTotal;
+  document.getElementById('statSignal').textContent   = localSignal;
+  document.getElementById('statFiltered').textContent = localFiltered;
+  const rate = localTotal > 0 ? Math.round((localSignal / localTotal) * 100) : 0;
+  document.getElementById('statAccuracy').textContent = `${rate}%`;
+
+  document.getElementById('lastUpdate').textContent = 'สแกนล่าสุด ' + new Date().toLocaleTimeString('th-TH');
 }
 
-async function sendSignalTelegram(assetKey, dir, strikePrice) {
+// ─── DAILY LOG SYSTEM ────────────────────────────────────────────────────────
+const DAILY_KEY = 'tve_daily_log';
+
+function getTodayStr() {
+  // วันที่ตาม Bangkok timezone
+  return new Date().toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+
+function loadDailyLog() {
+  try {
+    const raw = localStorage.getItem(DAILY_KEY);
+    if (!raw) return { date: getTodayStr(), entries: [] };
+    const data = JSON.parse(raw);
+    // รีเซทถ้าข้ามวัน
+    if (data.date !== getTodayStr()) {
+      const fresh = { date: getTodayStr(), entries: [] };
+      localStorage.setItem(DAILY_KEY, JSON.stringify(fresh));
+      return fresh;
+    }
+    return data;
+  } catch(e) { return { date: getTodayStr(), entries: [] }; }
+}
+
+function saveDailyLog(log) {
+  localStorage.setItem(DAILY_KEY, JSON.stringify(log));
+}
+
+// เพิ่ม entry ใหม่เมื่อมีสัญญาณ
+function logNewSignal(assetKey, dir, entryPrice, tfMinutes) {
+  const log = loadDailyLog();
+  // ป้องกัน duplicate: ถ้ามี entry ของ assetKey นี้ที่ยัง pending อยู่ ไม่บันทึกซ้ำ
+  const hasPending = log.entries.some(e => e.asset === assetKey && e.result === 'pending');
+  if (hasPending) return;
+
+  const expirySec = parseInt(tfMinutes) * 60; // expiry เป็นวินาที (= 1 แท่งเทียน)
+  const entry = {
+    id: Date.now(),
+    time: new Date().toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' }),
+    asset: assetKey,
+    dir, // 'buy' | 'sell'
+    entryPrice,
+    expirySec,
+    resolveAt: Date.now() + expirySec * 1000,
+    result: 'pending' // 'pending' | 'win' | 'lose'
+  };
+  log.entries.push(entry);
+  saveDailyLog(log);
+  renderDailyPanel();
+}
+
+// ตรวจผล pending entries โดยดูราคาปัจจุบันหลัง expiry ผ่านไป
+async function resolvePendingEntries() {
+  const log = loadDailyLog();
+  const now = Date.now();
+  let changed = false;
+
+  for (const entry of log.entries) {
+    if (entry.result !== 'pending') continue;
+    if (now < entry.resolveAt) continue; // ยังไม่ถึงเวลา
+
+    // ดึงราคาล่าสุดมาตรวจ
+    const assetInfo = assetMap[entry.asset];
+    if (!assetInfo) { entry.result = 'lose'; changed = true; continue; }
+
+    try {
+      const binInterval = entry.expirySec <= 60 ? '1m' : entry.expirySec <= 300 ? '5m' : '15m';
+      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binInterval}&limit=3`);
+      if (res.ok) {
+        const klines = await res.json();
+        // ราคา close แท่งล่าสุดที่ปิดสมบูรณ์แล้ว (index -2 คือแท่งก่อนหน้า = แท่งที่ปิดแน่นอน)
+        const closePrice = parseFloat(klines[klines.length - 2][4]);
+        if (entry.dir === 'buy')  entry.result = closePrice > entry.entryPrice ? 'win' : 'lose';
+        if (entry.dir === 'sell') entry.result = closePrice < entry.entryPrice ? 'win' : 'lose';
+        entry.closePrice = closePrice;
+        changed = true;
+      }
+    } catch(e) { /* ปล่อยเป็น pending ต่อ */ }
+  }
+
+  if (changed) { saveDailyLog(log); renderDailyPanel(); }
+}
+
+function renderDailyPanel() {
+  const log = loadDailyLog();
+  const entries = log.entries;
+
+  // อัปเดตวันที่
+  document.getElementById('dailyDate').textContent = log.date;
+
+  // นับสถิติ (เฉพาะที่ resolve แล้ว)
+  const resolved = entries.filter(e => e.result !== 'pending');
+  const wins     = resolved.filter(e => e.result === 'win').length;
+  const loses    = resolved.filter(e => e.result === 'lose').length;
+  const total    = entries.length;
+  const winRate  = resolved.length > 0 ? Math.round((wins / resolved.length) * 100) : 0;
+
+  document.getElementById('dTotal').textContent = total;
+  document.getElementById('dWin').textContent   = wins;
+  document.getElementById('dLose').textContent  = loses;
+  document.getElementById('dRate').textContent  = resolved.length > 0 ? `${winRate}%` : '—';
+  document.getElementById('dWinBar').style.width = `${winRate}%`;
+
+  // สีของ win rate bar
+  const bar = document.getElementById('dWinBar');
+  if (winRate >= 60) bar.style.background = 'linear-gradient(90deg,var(--green),#00ffaa)';
+  else if (winRate >= 40) bar.style.background = 'linear-gradient(90deg,var(--gold),#ffdd55)';
+  else bar.style.background = 'linear-gradient(90deg,var(--red),#ff8080)';
+
+  // render log table (ล่าสุดขึ้นก่อน)
+  const tbody = document.getElementById('dailyLogBody');
+  if (entries.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="daily-empty">ยังไม่มีสัญญาณวันนี้</td></tr>`;
+    return;
+  }
+
+  const rows = [...entries].reverse().map(e => {
+    const dirHTML  = e.dir === 'buy'
+      ? `<span class="dir-call">▲ CALL</span>`
+      : `<span class="dir-put">▼ PUT</span>`;
+    const assetShort = e.asset.replace('USD','').replace('USD','');
+    let resultHTML;
+    if (e.result === 'pending') {
+      const secsLeft = Math.max(0, Math.round((e.resolveAt - Date.now()) / 1000));
+      const mLeft = Math.floor(secsLeft / 60), sLeft = secsLeft % 60;
+      resultHTML = `<span class="result-pending">⏳ ${mLeft}:${String(sLeft).padStart(2,'0')}</span>`;
+    } else if (e.result === 'win') {
+      resultHTML = `<span class="result-win">✓ WIN</span>`;
+    } else {
+      resultHTML = `<span class="result-lose">✗ LOSE</span>`;
+    }
+    const dp = ['BTCUSD','ETHUSD','SOLUSD','XAUUSD'].includes(e.asset) ? 2 : 4;
+    const epFmt = Number(e.entryPrice).toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});
+    return `<tr>
+      <td>${e.time}</td>
+      <td style="color:var(--blue);font-weight:700">${assetShort}</td>
+      <td>${dirHTML}</td>
+      <td>$${epFmt}</td>
+      <td>${resultHTML}</td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML = rows;
+}
+
+window.resetDailyLog = function() {
+  if (!confirm('ล้างข้อมูลสรุปวันนี้ทั้งหมด?')) return;
+  localStorage.setItem(DAILY_KEY, JSON.stringify({ date: getTodayStr(), entries: [] }));
+  renderDailyPanel();
+};
+
+// ─── MIDNIGHT TELEGRAM SUMMARY ───────────────────────────────────────────────
+const MIDNIGHT_KEY = 'tve_midnight_sent';
+
+async function sendMidnightSummary(log) {
   const tok = localStorage.getItem('tve_user_token');
   const cid = localStorage.getItem('tve_user_chatid');
   if (!tok || !cid) return;
 
-  const uniqueSignalKey = `${assetKey}_${dir}_${currentTimeframeMinutes}`;
-  if (lastSentSignals[assetKey] === uniqueSignalKey) return;
+  const entries  = log.entries;
+  const resolved = entries.filter(e => e.result !== 'pending');
+  const wins     = resolved.filter(e => e.result === 'win').length;
+  const loses    = resolved.filter(e => e.result === 'lose').length;
+  const total    = entries.length;
+  const pending  = entries.filter(e => e.result === 'pending').length;
+  const winRate  = resolved.length > 0 ? Math.round((wins / resolved.length) * 100) : 0;
 
-  const emoji = dir === 'buy' ? '🟢 [CALL / HIGHER]' : '🔴 [PUT / LOWER]';
-  let expiryText = currentTimeframeMinutes === '15' ? '1 MIN' : currentTimeframeMinutes === '60' ? '5 MIN' : '15 MIN';
-  const timeStr = new Date().toLocaleTimeString('th-TH');
+  // emoji ประเมินผล
+  const perfEmoji = winRate >= 70 ? '🏆 ยอดเยี่ยม!' : winRate >= 55 ? '✅ ดี' : winRate >= 40 ? '⚖️ ปานกลาง' : '⚠️ ควรทบทวนกลยุทธ์';
+
+  // สร้าง breakdown ตามสินทรัพย์
+  const byAsset = {};
+  for (const e of entries) {
+    if (!byAsset[e.asset]) byAsset[e.asset] = { win: 0, lose: 0, pending: 0 };
+    byAsset[e.asset][e.result === 'pending' ? 'pending' : e.result]++;
+  }
+  const assetLines = Object.entries(byAsset).map(([asset, s]) => {
+    const assetRate = (s.win + s.lose) > 0 ? Math.round(s.win / (s.win + s.lose) * 100) : 0;
+    const bar = s.win > 0 ? '▓'.repeat(Math.min(s.win, 5)) : '';
+    const empty = '░'.repeat(Math.max(0, 5 - Math.min(s.win + s.lose, 5)));
+    return `  ${asset}: W${s.win} L${s.lose}${s.pending > 0 ? ` ⏳${s.pending}` : ''} [${bar}${empty}] ${(s.win+s.lose)>0 ? assetRate+'%' : '—'}`;
+  }).join('\n');
+
+  // สร้าง top 3 entries ล่าสุด
+  const lastThree = [...entries].reverse().slice(0, 3).map(e => {
+    const icon = e.result === 'win' ? '✅' : e.result === 'lose' ? '❌' : '⏳';
+    const dir  = e.dir === 'buy' ? '▲' : '▼';
+    return `  ${icon} ${e.time} ${e.asset} ${dir} ${e.result === 'pending' ? 'รอผล' : e.result.toUpperCase()}`;
+  }).join('\n');
 
   const text = encodeURIComponent(
-`🎯 *TVE MULTI-RADAR ALERT* 🎯
+`📋 *TVE สรุปผลรายวัน* 📋
 ━━━━━━━━━━━━━━━━━━
-สินทรัพย์ประมวลผล: *${assetKey}*
-⏱️ สัญญาหมดอายุ: *${expiryText}*
-ทิศทางออเดอร์: *${emoji}*
-
-📌 *ราคาอ้างอิงจุดเข้าสัญญา:*
-• Strike Price: *$${strikePrice.toLocaleString('en-US') || strikePrice}*
-
-⏰ เวลาเรดาร์ตรวจเจอ: ${timeStr} (BKK)
+📅 วันที่: *${log.date}*
 ━━━━━━━━━━━━━━━━━━
-_ระบบสัญญาณสแกนอัตโนมัติเฉพาะบัญชี Premium เท่านั้น_`
+📊 *ภาพรวมวันนี้*
+• สัญญาณทั้งหมด: *${total}*
+• ✅ ชนะ: *${wins}*
+• ❌ แพ้: *${loses}*
+${pending > 0 ? `• ⏳ รอผล: *${pending}*\n` : ''}• 🎯 Win Rate: *${winRate}%*
+• ผลการเทรด: *${perfEmoji}*
+
+📈 *แยกตามสินทรัพย์*
+${assetLines || '  — ไม่มีข้อมูล —'}
+
+🕐 *3 สัญญาณล่าสุด*
+${lastThree || '  — ไม่มีข้อมูล —'}
+━━━━━━━━━━━━━━━━━━
+_TVE Matrix · รายงานอัตโนมัติ 00:00 BKK_`
   );
 
   try {
     const r = await fetch(`https://api.telegram.org/bot${tok}/sendMessage?chat_id=${cid}&text=${text}&parse_mode=Markdown`);
-    if(r.ok) { lastSentSignals[assetKey] = uniqueSignalKey; }
-  } catch(e){}
+    if (r.ok) localStorage.setItem(MIDNIGHT_KEY, getTodayStr());
+  } catch(e) { console.error('Midnight TG error:', e); }
 }
 
+// ปุ่มส่งรายงานด้วยมือ
+window.sendDailySummaryNow = async function() {
+  const btn = document.getElementById('midnightSendBtn');
+  btn.disabled = true; btn.textContent = '📤 กำลังส่ง...';
+  const log = loadDailyLog();
+  await sendMidnightSummary(log);
+  btn.disabled = false; btn.textContent = '📤 ส่งสรุปเข้า Telegram ตอนนี้';
+};
+
+// ตรวจเวลาเที่ยงคืน BKK ทุก 30 วินาที
+function checkMidnightSend() {
+  const now = new Date();
+  const bkkHour = parseInt(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok', hour: 'numeric', hour12: false }));
+  const bkkMin  = now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok', minute: '2-digit' });
+
+  // ส่งเมื่อ 00:00–00:01 BKK และยังไม่ได้ส่งวันนี้
+  if (bkkHour === 0 && parseInt(bkkMin) <= 1) {
+    const alreadySent = localStorage.getItem(MIDNIGHT_KEY) === getTodayStr();
+    if (!alreadySent) {
+      // ดึง log ของเมื่อคืน (ก่อน reset) แล้วส่ง
+      const log = loadDailyLog();
+      if (log.entries.length > 0) sendMidnightSummary(log);
+    }
+  }
+}
+
+// ตรวจผล pending ทุก 10 วินาที
+setInterval(resolvePendingEntries, 10000);
+// อัปเดต countdown ทุก 1 วินาที
+setInterval(() => {
+  const log = loadDailyLog();
+  if (log.entries.some(e => e.result === 'pending')) renderDailyPanel();
+}, 1000);
+// เช็คเที่ยงคืนทุก 30 วินาที
+setInterval(checkMidnightSend, 30000);
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 updateTradingViewChart();
-setInterval(runMultiScanner, 15000); 
+renderDailyPanel();
+setInterval(runMultiScanner, 15000);
 </script>
 </body>
 </html>
