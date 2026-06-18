@@ -3,430 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TVE Options Matrix · Multi-Scan Ultra Terminal</title>
+<title>TVE Options Matrix · Ultimate Multi-Scan</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-:root {
-  --bg:#0a0a0f;--panel:#111118;--panel2:#16161f;--border:#1e1e2e;
-  --gold:#f5c842;--gold-dim:rgba(245,200,66,0.12);
-  --green:#00e676;--green-dim:rgba(0,230,118,0.12);
-  --red:#ff4444;--red-dim:rgba(255,68,68,0.12);
-  --blue:#4fc3f7;--blue-dim:rgba(79,195,247,0.12);
-  --muted:#555570;--text:#e8e8f0;--text2:#9090a8;
-}
+:root { --bg:#0a0a0f;--panel:#111118;--panel2:#16161f;--border:#1e1e2e;--gold:#f5c842;--gold-dim:rgba(245,200,66,0.12);--green:#00e676;--green-dim:rgba(0,230,118,0.12);--red:#ff4444;--red-dim:rgba(255,68,68,0.12);--blue:#4fc3f7;--blue-dim:rgba(79,195,247,0.12);--text:#e8e8f0;--text2:#9090a8; }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;}
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--panel);}
-.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;}
-.logo small{color:var(--text2);font-size:11px;font-weight:400;}
-.live-badge{display:flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid rgba(0,230,118,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--green);font-family:'Space Mono',monospace;}
-.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--gold);}
 .layout{display:grid;grid-template-columns:1fr 340px;height:calc(100vh - 53px);}
-@media(max-width:960px){.layout{grid-template-columns:1fr;height:auto;}}
-.left{display:flex;flex-direction:column;overflow:hidden;background:#000;}
-.chart-container-tv { flex:1; width:100%; height:100%; min-height:450px; position:relative; }
-.price-bar{display:flex;align-items:flex-end;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--panel) 0%,var(--bg) 100%);}
-.price-big{font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1;}
-.price-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:4px;}
-.price-sub{font-size:11px;color:var(--text2);margin-top:3px;}
-.sidebar{border-left:1px solid var(--border);background:var(--panel);overflow-y:auto;display:flex;flex-direction:column;}
-.sidebar::-webkit-scrollbar{width:4px;}
-.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-.sec{padding:18px;border-bottom:1px solid var(--border);}
-.sec-title{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:14px;}
-
-.asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.asset-btn {
-  padding: 10px; background: var(--panel2); border: 1px solid var(--border);
-  color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px;
-  font-weight: 700; border-radius: 6px; cursor: pointer; text-align: left;
-  display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;
-}
-.asset-btn span.type-badge { font-size: 8px; background: var(--bg); padding: 2px 5px; border-radius: 4px; color: var(--text2); text-transform: uppercase; }
-.asset-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
-.asset-btn.active span.type-badge { background: var(--gold); color: var(--bg); }
-
-.selector-wrap { display: flex; gap: 6px; margin-bottom: 12px; }
-.select-btn {
-  flex: 1; padding: 8px; background: var(--panel2); border: 1px solid var(--border);
-  color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px;
-  font-weight: 700; border-radius: 6px; cursor: pointer; transition: all 0.2s;
-}
-.select-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
-
-.signal-container-relative { position: relative; overflow: hidden; border-radius: 10px; }
-.signal-lock-overlay {
-  position: absolute; inset: 0; background: rgba(11, 11, 18, 0.98);
-  border: 1px dashed var(--gold); border-radius: 10px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  z-index: 10; padding: 20px; text-align: center; backdrop-filter: blur(6px);
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-}
-
-/* TVE ANIMATION LOGO */
-.tve-anim-wrap { position: relative; width: 140px; height: 140px; margin-bottom: 10px; flex-shrink: 0; }
-.tve-ring-outer { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--gold); border-right-color: rgba(245, 200, 66, 0.25); animation: spinCW 3s linear infinite; }
-.tve-ring-mid { position: absolute; inset: 12px; border-radius: 50%; border: 1.5px solid transparent; border-bottom-color: #4fc3f7; border-left-color: rgba(79, 195, 247, 0.2); animation: spinCCW 2.2s linear infinite; }
-.tve-ring-inner { position: absolute; inset: 24px; border-radius: 50%; border: 1px solid rgba(245, 200, 66, 0.12); animation: breathe 2.8s ease-in-out infinite; }
-.tve-orbit-gold { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px 4px rgba(245, 200, 66, 0.65); animation: orbitGold 3s linear infinite; }
-.tve-hex-svg { position: absolute; inset: 32px; filter: drop-shadow(0 0 8px rgba(245, 200, 66, 0.45)); animation: breathe 3s ease-in-out infinite alternate; }
-.tve-center-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-.tve-letters { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-shadow: 0 0 14px rgba(245, 200, 66, 0.8); }
-.tve-particles { position: absolute; inset: 0; pointer-events: none; }
-.tve-star { position: absolute; width: 2px; height: 2px; background: var(--gold); border-radius: 50%; opacity: 0; animation: twinkle var(--dur, 2s) ease-in-out infinite var(--delay, 0s); }
-
-@keyframes spinCW   { to { transform: rotate(360deg) } }
-@keyframes spinCCW  { to { transform: rotate(-360deg) } }
-@keyframes breathe  { 0%, 100% { opacity: .45; transform: scale(.96) } 50% { opacity: 1; transform: scale(1.04) } }
-@keyframes twinkle  { 0%, 100% { opacity: 0; transform: scale(.5) } 50% { opacity: 1; transform: scale(1.3) } }
-@keyframes orbitGold { from { transform: rotate(0deg) translateX(58px) rotate(0deg) } to { transform: rotate(360deg) translateX(58px) rotate(-360deg) } }
-.tve-ecosystem-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; color: rgba(245, 200, 66, 0.5); text-transform: uppercase; margin-bottom: 6px; }
-
-.lock-title{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--gold);font-family:'Space Mono',monospace;letter-spacing:1px;}
-.lock-desc{font-size:11px;color:var(--text2);margin-bottom:14px;}
-.lock-input-group{display:flex;gap:6px;width:100%;max-width:230px;}
-.lock-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none;text-align:center;}
-.lock-input:focus{border-color:var(--gold);}
-.lock-submit-btn{background:var(--gold);color:var(--bg);border:none;padding:8px 14px;font-size:12px;font-weight:700;border-radius:6px;cursor:pointer;}
-.lock-error{color:var(--red);font-size:11px;margin-top:8px;font-family:'Space Mono',monospace;display:none;}
-.welcome-user{font-size:11px;color:var(--green);font-family:'Space Mono',monospace;margin-bottom:10px;text-align:center;display:none;}
-
-.tg-input { width: 100%; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 11px; margin-bottom: 8px; outline: none; }
-.tg-input:focus { border-color: var(--blue); }
-.tg-save-btn { width: 100%; background: var(--blue-dim); border: 1px solid rgba(79,195,247,0.4); color: var(--blue); padding: 8px; font-weight: 600; font-size: 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-.tg-save-btn:hover { background: rgba(79,195,247,0.25); border-color: var(--blue); }
-
-.multi-panel-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-family: 'Space Mono', monospace; font-size: 11px; }
-.multi-panel-table th { text-align: left; padding: 6px 8px; color: var(--muted); border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; }
-.multi-panel-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
-.badge-dir { padding: 2px 5px; border-radius: 4px; font-weight: 700; font-size: 10px; }
+.chart-container { flex:1; width:100%; height:100%; position:relative; background:#000; }
+.sidebar{border-left:1px solid var(--border);background:var(--panel);padding:18px;overflow-y:auto;}
+.asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 20px; }
+.asset-btn { padding: 8px; background: var(--panel2); border: 1px solid var(--border); color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px; font-weight:700; cursor: pointer; border-radius: 4px; }
+.asset-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.tg-input { width: 100%; background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 8px; color: var(--text); font-size: 11px; margin-bottom: 5px; }
+.multi-panel-table { width: 100%; border-collapse: collapse; font-family: 'Space Mono', monospace; font-size: 11px; }
+.multi-panel-table td { padding: 8px; border-bottom: 1px solid var(--border); }
+.badge-dir { padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; }
 .badge-dir.buy { background: var(--green-dim); color: var(--green); }
 .badge-dir.sell { background: var(--red-dim); color: var(--red); }
-.badge-dir.hold { background: var(--panel2); color: var(--text2); }
-
-.refresh-btn{margin:16px;padding:11px;background:var(--gold-dim);border:1px solid rgba(245,200,66,0.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:calc(100% - 32px);letter-spacing:0.5px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
 </style>
-
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">◈ TVE ULTIMATE SCANNER</div>
+  <div id="lastUpdate" style="font-size:10px; color:var(--text2);">เชื่อมต่อระบบ...</div>
+</div>
+
+<div class="layout">
+  <div class="chart-container" id="tv_chart_container"></div>
+  <div class="sidebar">
+    <div class="asset-grid" id="assetGrid"></div>
+    <input type="text" id="userTgToken" class="tg-input" placeholder="Bot Token...">
+    <input type="text" id="userTgChatId" class="tg-input" placeholder="Chat ID...">
+    <button style="width:100%; padding:8px; background:var(--blue); border:none; cursor:pointer; font-weight:700; border-radius:4px;" onclick="saveKeys()">SAVE SETTINGS</button>
+    <table class="multi-panel-table" style="margin-top:20px;">
+      <tbody id="multiAssetTableBody"></tbody>
+    </table>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
   
-  const firebaseConfig = {
+  const db = getDatabase(initializeApp({
     apiKey: "AIzaSyCLq0sx9CBR-SceGR0y61dE9iWmkBsGLck",
-    authDomain: "option-tvesignal.firebaseapp.com",
     databaseURL: "https://option-tvesignal-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "option-tvesignal",
-    storageBucket: "option-tvesignal.firebasestorage.app",
-    messagingSenderId: "552322019865",
-    appId: "1:552322019865:web:aa8ee5051de72361a9f088",
-    measurementId: "G-5WX9BV2L8Z"
-  };
-  
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    projectId: "option-tvesignal"
+  }));
 
-  window.checkUnlockCode = function() {
-    const userInput = document.getElementById('pwdInput').value.trim();
-    const errMsg = document.getElementById('lockError');
-    if(!userInput) return;
+  const assetMap = {
+    XAUUSD: { tv:"FX_IDC:XAUUSD", binance:"PAXGUSDT", active:true, name:"💰 XAUUSD" },
+    BTCUSD: { tv:"BINANCE:BTCUSDT", binance:"BTCUSDT", active:true, name:"₿ BTCUSD" },
+    ETHUSD: { tv:"BINANCE:ETHUSDT", binance:"ETHUSDT", active:false, name:"♦ ETHUSD" },
+    SOLUSD: { tv:"BINANCE:SOLUSDT", binance:"SOLUSDT", active:false, name:"🪙 SOLUSD" },
+    EURUSD: { tv:"FX:EURUSD", binance:"EURUSDT", active:false, name:"🇪🇺 EURUSD" },
+    GBPUSD: { tv:"FX:GBPUSD", binance:"GBPUSDT", active:false, name:"🇬🇧 GBPUSD" },
+    USDJPY: { tv:"FX:USDJPY", binance:"USDJPY", active:false, name:"🇯🇵 USDJPY" },
+    AUDUSD: { tv:"FX:AUDUSD", binance:"AUDUSDT", active:false, name:"🇦🇺 AUDUSD" }
+  };
+
+  let chartFocus = 'XAUUSD';
+
+  window.saveKeys = () => {
+    localStorage.setItem('tve_user_token', document.getElementById('userTgToken').value);
+    localStorage.setItem('tve_user_chatid', document.getElementById('userTgChatId').value);
+    alert("บันทึกค่าเรียบร้อย");
+  };
+
+  function analyze(klines) {
+    if (!klines || klines.length < 30) return 'hold';
+    const close = klines.map(c => parseFloat(c[4]));
+    const len = close.length;
+    const calcEMA = (p, n) => { let k=2/(n+1), ema=p[0]; for(let i=1;i<len;i++) ema=p[i]*k+ema*(1-k); return ema; };
+    const ema50 = calcEMA(close, 50), ema9 = calcEMA(close, 9), ema21 = calcEMA(close, 21);
     
-    get(child(ref(db), `option_codes/${userInput}`)).then((snapshot) => {
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
-        window.isUnlocked = true;
-        document.getElementById('lockOverlay').style.opacity = '0';
-        setTimeout(() => { document.getElementById('lockOverlay').style.display = 'none'; }, 400);
-        const welcome = document.getElementById('welcomeUser');
-        welcome.textContent = `Options Premium: ${userData.customer_name}`;
-        welcome.style.display = 'block';
-        
-        loadUserTelegramKeys();
-        runMultiScanner();
-      } else {
-        window.isUnlocked = false;
-        errMsg.style.display = 'block';
-      }
-    }).catch((error) => {
-      console.error(error);
-      alert("ไม่สามารถติดต่อเซิร์ฟเวอร์หลักได้");
-    });
+    let gains=0, losses=0;
+    for(let i=len-14; i<len; i++) { let d=close[i]-close[i-1]; if(d>0) gains+=d; else losses-=d; }
+    const rsi = 100 - (100/(1+(gains/14)/(losses/14)));
+
+    if (close[len-1] > ema50 && ema9 > ema21 && rsi > 50) return 'buy';
+    if (close[len-1] < ema50 && ema9 < ema21 && rsi < 50) return 'sell';
+    return 'hold';
   }
-</script>
-</head>
-<body>
 
-<div class="header">
-  <div class="logo">◈ TVE OPTIONS MATRIX <small>Project: option-tvesignal (8-Asset Node)</small></div>
-  <div class="header-right">
-    <div class="live-badge"><div class="live-dot"></div>8-RADAR LOOP ON</div>
-    <div id="lastUpdate">—</div>
-  </div>
-</div>
-
-<div class="layout">
-  <div class="left">
-    <div class="price-bar">
-      <div>
-        <div class="price-label">📈 MULTI-ASSET MATRIX TERMINAL</div>
-        <div class="price-big" id="focusAssetTitle" style="font-size:24px;">คลิกชื่อคู่เงินด้านขวาเพื่อสลับกางกราฟเดี่ยว</div>
-        <div class="price-sub">ระบบทำงานวนรอบสแกนแท่งเทียนคู่ขนานเพื่อประมวลผลสัญญาณดิ่งเข้ากลุ่มส่วนตัว</div>
-      </div>
-    </div>
-    <div class="chart-container-tv" id="tv_chart_container"></div>
-  </div>
-
-  <div class="sidebar">
-    <div class="sec">
-      <div class="sec-title">เปิด/ปิด คู่สินทรัพย์ตรวจสัญญาณ (เลือกได้พร้อมกัน)</div>
-      <div class="asset-grid">
-        <!-- ⚡ แผงปุ่ม 8 สินทรัพย์ท็อปพรีเมียมเปิดครบไลน์ -->
-        <button class="asset-btn active" id="asset-XAUUSD" onclick="toggleAssetSelection('XAUUSD')">💰 XAUUSD <span class="type-badge">Gold</span></button>
-        <button class="asset-btn active" id="asset-BTCUSD" onclick="toggleAssetSelection('BTCUSD')">₿ BTCUSD <span class="type-badge">Crypto</span></button>
-        <button class="asset-btn" id="asset-ETHUSD" onclick="toggleAssetSelection('ETHUSD')">♦ ETHUSD <span class="type-badge">Crypto</span></button>
-        <button class="asset-btn" id="asset-SOLUSD" onclick="toggleAssetSelection('SOLUSD')">🪙 SOLUSD <span class="type-badge">Crypto</span></button>
-        <button class="asset-btn" id="asset-EURUSD" onclick="toggleAssetSelection('EURUSD')">🇪🇺 EURUSD <span class="type-badge">Forex</span></button>
-        <button class="asset-btn" id="asset-GBPUSD" onclick="toggleAssetSelection('GBPUSD')">🇬🇧 GBPUSD <span class="type-badge">Forex</span></button>
-        <button class="asset-btn" id="asset-USDJPY" onclick="toggleAssetSelection('USDJPY')">🇯🇵 USDJPY <span class="type-badge">Forex</span></button>
-        <button class="asset-btn" id="asset-AUDUSD" onclick="toggleAssetSelection('AUDUSD')">🇦🇺 AUDUSD <span class="type-badge">Forex</span></button>
-      </div>
-    </div>
-
-    <div class="sec">
-      <div class="sec-title">เลือกชุดเวลาสัญญา (Timeframe Expiry)</div>
-      <div class="selector-wrap">
-        <button class="select-btn active" id="tfM15" onclick="changeTF('15')">1 MIN</button>
-        <button class="select-btn" id="tfH1" onclick="changeTF('60')">5 MIN</button>
-        <button class="select-btn" id="tfH4" onclick="changeTF('240')">15 MIN</button>
-      </div>
-    </div>
-
-    <div class="sec">
-      <div class="sec-title">🚀 ตั้งค่า TELEGRAM ALERT ส่วนตัว</div>
-      <input type="text" id="userTgToken" class="tg-input" placeholder="วาง Bot Token ส่วนตัวที่นี่...">
-      <input type="text" id="userTgChatId" class="tg-input" placeholder="วาง Chat ID กลุ่ม/ส่วนตัวที่นี่...">
-      <button class="tg-save-btn" onclick="saveUserTelegramKeys()">💾 บันทึกสิทธิ์รับแจ้งเตือน</button>
-    </div>
-
-    <div class="welcome-user" id="welcomeUser"></div>
-
-    <div class="sec" style="flex: 1;">
-      <div class="sec-title">มอนิเตอร์บอร์ดเรียลไทม์ (8-Asset Live Grid)</div>
-
-      <div class="signal-container-relative">
-        <div class="signal-lock-overlay" id="lockOverlay">
-          <div class="tve-anim-wrap">
-            <div class="tve-scan"></div>
-            <div class="tve-ring-outer"></div>
-            <div class="tve-ring-mid"></div>
-            <div class="tve-ring-inner"></div>
-            <div class="tve-orbit-gold"></div>
-            <svg class="tve-hex-svg" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="42,4 78,23 78,61 42,80 6,61 6,23" fill="rgba(245,200,66,0.07)" stroke="rgba(245,200,66,0.45)" stroke-width="1.5" stroke-linejoin="round"/>
-            </svg>
-            <div class="tve-center-text"><div class="tve-letters">TVE</div></div>
-            <div class="tve-particles" id="tveParticles"></div>
-          </div>
-          <div class="lock-title">TVE MATRIX NODE</div>
-          <div class="lock-desc">กรอกรหัสผ่านเพื่อเชื่อมระบบสแกนความเร็วสูง</div>
-          <div class="lock-input-group">
-            <input type="password" class="lock-input" id="pwdInput" placeholder="ENTER CODE..." onkeydown="if(event.key==='Enter') checkUnlockCode()">
-            <button class="lock-submit-btn" onclick="checkUnlockCode()">ตกลง</button>
-          </div>
-          <div class="lock-error" id="lockError">✖ ไม่พบรหัสผ่านนี้ในโฟลเดอร์ระบบ</div>
-        </div>
-
-        <table class="multi-panel-table">
-          <thead>
-            <tr>
-              <th>สินทรัพย์</th>
-              <th>ราคาปัจจุบัน</th>
-              <th>สัญญาณเรดาร์</th>
-            </tr>
-          </thead>
-          <tbody id="multiAssetTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <button class="refresh-btn" onclick="runMultiScanner()">↻ สั่งคัดกรองรอบใหม่ทันที</button>
-  </div>
-</div>
-
-<script>
-(function() {
-  const container = document.getElementById('tveParticles');
-  if (!container) return;
-  for(let i=0; i<6; i++){
-    const s = document.createElement('div'); s.className = 'tve-star';
-    s.style.top = Math.random()*90+'%'; s.style.left = Math.random()*90+'%';
-    s.style.setProperty('--dur', (1.4 + Math.random()*1.8).toFixed(1)+'s');
-    s.style.setProperty('--delay', (Math.random()*1.5).toFixed(1)+'s');
-    container.appendChild(s);
+  async function scanner() {
+    const tbody = document.getElementById('multiAssetTableBody');
+    tbody.innerHTML = '';
+    for (const [key, asset] of Object.entries(assetMap)) {
+      if (!asset.active) continue;
+      try {
+        const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${asset.binance};interval=1m&limit=60`);
+        const klines = await r.json();
+        const dir = analyze(klines);
+        tbody.innerHTML += `<tr><td style="color:var(--blue); cursor:pointer;" onclick="chartFocus='${key}'; initChart()">🔗 ${asset.name}</td><td>${dir}</td></tr>`;
+        if (dir !== 'hold') {
+            const tok = localStorage.getItem('tve_user_token'), cid = localStorage.getItem('tve_user_chatid');
+            if(tok && cid) fetch(`https://api.telegram.org/bot${tok}/sendMessage?chat_id=${cid}&text=SIGNAL: ${asset.name} IS ${dir}`);
+        }
+      } catch(e) {}
+    }
   }
-})();
 
-window.isUnlocked = false; 
-let currentTimeframeMinutes = '15'; 
-let lastSentSignals = {}; 
-let chartFocusAsset = 'XAUUSD';
-
-// 📊 ผังจับคู่สัญลักษณ์เพื่อซิงก์ดึงราคากลางทั่วโลกแบบเรียลไทม์
-const assetMap = {
-  XAUUSD: { tvSymbol: "FX_IDC:XAUUSD", binanceSymbol: "PAXGUSDT", active: true, name: "💰 XAUUSD" },
-  BTCUSD: { tvSymbol: "BINANCE:BTCUSDT", binanceSymbol: "BTCUSDT", active: true, name: "₿ BTCUSD" },
-  ETHUSD: { tvSymbol: "BINANCE:ETHUSDT", binanceSymbol: "ETHUSDT", active: false, name: "♦ ETHUSD" },
-  SOLUSD: { tvSymbol: "BINANCE:SOLUSDT", binanceSymbol: "SOLUSDT", active: false, name: "🪙 SOLUSD" },
-  EURUSD: { tvSymbol: "FX:EURUSD", binanceSymbol: "EURUSDT", active: false, name: "🇪🇺 EURUSD" },
-  GBPUSD: { tvSymbol: "FX:GBPUSD", binanceSymbol: "GBPUSDT", active: false, name: "🇬🇧 GBPUSD" },
-  USDJPY: { tvSymbol: "FX:USDJPY", binanceSymbol: "USDJPY", active: false, name: "🇯🇵 USDJPY" },
-  AUDUSD: { tvSymbol: "FX:AUDUSD", binanceSymbol: "AUDUSDT", active: false, name: "🇦🇺 AUDUSD" }
-};
-
-window.saveUserTelegramKeys = function() {
-  localStorage.setItem('tve_user_token', document.getElementById('userTgToken').value.trim());
-  localStorage.setItem('tve_user_chatid', document.getElementById('userTgChatId').value.trim());
-  alert("✨ บันทึกเรียบร้อย! สแกนเนอร์จะคอยเฝ้าระวังสินทรัพย์ทั้ง 8 ตัวให้แบบขนานครับ");
-}
-
-function loadUserTelegramKeys() {
-  if(localStorage.getItem('tve_user_token')) document.getElementById('userTgToken').value = localStorage.getItem('tve_user_token');
-  if(localStorage.getItem('tve_user_chatid')) document.getElementById('userTgChatId').value = localStorage.getItem('tve_user_chatid');
-}
-
-function toggleAssetSelection(assetKey) {
-  assetMap[assetKey].active = !assetMap[assetKey].active;
-  document.getElementById(`asset-${assetKey}`).classList.toggle('active', assetMap[assetKey].active);
-  switchChartFocus(assetKey);
-}
-
-function switchChartFocus(key) {
-  chartFocusAsset = key;
-  document.getElementById('focusAssetTitle').textContent = `กำลังดูชาร์ตเดี่ยว: ${assetMap[chartFocusAsset].name}`;
-  updateTradingViewChart();
-  runMultiScanner();
-}
-
-function changeTF(tfMinutes) {
-  currentTimeframeMinutes = tfMinutes;
-  document.getElementById('tfM15').classList.toggle('active', tfMinutes === '15');
-  document.getElementById('tfH1').classList.toggle('active', tfMinutes === '60');
-  document.getElementById('tfH4').classList.toggle('active', tfMinutes === '240');
-  updateTradingViewChart(); 
-  runMultiScanner();
-}
-
-function updateTradingViewChart() {
-  let tvInterval = currentTimeframeMinutes === '15' ? '1' : currentTimeframeMinutes === '60' ? '5' : '15';
-  new TradingView.widget({
-    "width": "100%", "height": "100%", "symbol": assetMap[chartFocusAsset].tvSymbol, 
-    "interval": tvInterval, "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "th",
-    "container_id": "tv_chart_container", "studies": ["RSI@tv-basicstudies", "MASimple@tv-basicstudies"]
-  });
-}
-
-function analyzeAssetData(klines) {
-  if (!klines || klines.length < 30) return 'hold';
-  const closePrices = klines.map(c => parseFloat(c[4]));
-  const len = closePrices.length;
-
-  const calcEMA = (prices, period) => {
-    let k = 2 / (period + 1); let ema = prices[0];
-    for (let i = 1; i < prices.length; i++) ema = prices[i] * k + ema * (1 - k);
-    return ema;
+  window.initChart = () => {
+    new TradingView.widget({"width":"100%","height":"100%","symbol":assetMap[chartFocus].tv,"interval":"1","container_id":"tv_chart_container","theme":"dark"});
   };
 
-  const currentPrice = closePrices[len - 1];
-  const ema50 = calcEMA(closePrices, 50);
-  const ema9 = calcEMA(closePrices, 9);
-  const ema21 = calcEMA(closePrices, 21);
-
-  if (currentPrice > ema50 && ema9 > ema21) return 'buy';
-  if (currentPrice < ema50 && ema9 < ema21) return 'sell';
-  return 'hold';
-}
-
-async function runMultiScanner() {
-  let binanceInterval = currentTimeframeMinutes === '15' ? '1m' : currentTimeframeMinutes === '60' ? '5m' : '15m';
-  const tbody = document.getElementById('multiAssetTableBody');
-  let htmlBuffer = "";
-
-  for (const [key, assetInfo] of Object.entries(assetMap)) {
-    if (!assetInfo.active) {
-      htmlBuffer += `<tr><td>${assetInfo.name}</td><td>—</td><td><span class="badge-dir hold">OFFLINE</span></td></tr>`;
-      continue;
-    }
-
-    try {
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=60`);
-      if (res.ok) {
-        const klines = await res.json();
-        const price = parseFloat(klines[klines.length - 1][4]);
-        const direction = analyzeAssetData(klines);
-        
-        // ฟอร์แมตทศนิยมตามความเหมาะสมของแต่ละคู่เงิน
-        let decimalPlaces = (key.includes('USD') && !key.includes('XAU') && !key.includes('BTC') && !key.includes('ETH')) ? 4 : (key === 'USDJPY' ? 3 : 2);
-        let fmtPrice = price.toLocaleString('en-US', { minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces });
-        
-        let badgeClass = direction === 'buy' ? 'buy' : direction === 'sell' ? 'sell' : 'hold';
-        let txtLabel = direction === 'buy' ? '▲ CALL' : direction === 'sell' ? '▼ PUT' : '◆ WAIT';
-
-        htmlBuffer += `<tr>
-          <td style="cursor:pointer; font-weight:700; color:var(--blue);" onclick="switchChartFocus('${key}')">🔗 ${assetInfo.name}</td>
-          <td><b>$${fmtPrice}</b></td>
-          <td><span class="badge-dir ${badgeClass}">${txtLabel}</span></td>
-        </tr>`;
-
-        if (direction !== 'hold' && window.isUnlocked) {
-          sendSignalTelegram(key, direction, price);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  tbody.innerHTML = htmlBuffer;
-  document.getElementById('lastUpdate').textContent = 'มัลติสแกนล่าสุด ' + new Date().toLocaleTimeString('th-TH');
-}
-
-async function sendSignalTelegram(assetKey, dir, strikePrice) {
-  const tok = localStorage.getItem('tve_user_token');
-  const cid = localStorage.getItem('tve_user_chatid');
-  if (!tok || !cid) return;
-
-  const uniqueSignalKey = `${assetKey}_${dir}_${currentTimeframeMinutes}`;
-  if (lastSentSignals[assetKey] === uniqueSignalKey) return;
-
-  const emoji = dir === 'buy' ? '🟢 [CALL / HIGHER]' : '🔴 [PUT / LOWER]';
-  let expiryText = currentTimeframeMinutes === '15' ? '1 MIN' : currentTimeframeMinutes === '60' ? '5 MIN' : '15 MIN';
-  const timeStr = new Date().toLocaleTimeString('th-TH');
-
-  const text = encodeURIComponent(
-`🎯 *TVE MULTI-RADAR ALERT* 🎯
-━━━━━━━━━━━━━━━━━━
-สินทรัพย์ประมวลผล: *${assetKey}*
-⏱️ สัญญาหมดอายุ: *${expiryText}*
-ทิศทางออเดอร์: *${emoji}*
-
-📌 *ราคาอ้างอิงจุดเข้าสัญญา:*
-• Strike Price: *$${strikePrice.toLocaleString('en-US') || strikePrice}*
-
-⏰ เวลาเรดาร์ตรวจเจอ: ${timeStr} (BKK)
-━━━━━━━━━━━━━━━━━━
-_ระบบสัญญาณสแกนอัตโนมัติเฉพาะบัญชี Premium เท่านั้น_`
-  );
-
-  try {
-    const r = await fetch(`https://api.telegram.org/bot${tok}/sendMessage?chat_id=${cid}&text=${text}&parse_mode=Markdown`);
-    if(r.ok) { lastSentSignals[assetKey] = uniqueSignalKey; }
-  } catch(e){}
-}
-
-updateTradingViewChart();
-setInterval(runMultiScanner, 15000); 
+  // Init
+  Object.keys(assetMap).forEach(k => {
+    document.getElementById('assetGrid').innerHTML += `<button class="asset-btn ${assetMap[k].active?'active':''}" onclick="assetMap['${k}'].active=!assetMap['${k}'].active; this.classList.toggle('active'); scanner();">${assetMap[k].name}</button>`;
+  });
+  
+  document.getElementById('userTgToken').value = localStorage.getItem('tve_user_token') || '';
+  document.getElementById('userTgChatId').value = localStorage.getItem('tve_user_chatid') || '';
+  initChart();
+  setInterval(scanner, 15000);
 </script>
 </body>
 </html>
