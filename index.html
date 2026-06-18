@@ -110,6 +110,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .sig-word{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:1px;}
 .sig-sub{font-size:11px;color:var(--text2);margin-top:2px;}
 .levels{display:flex;flex-direction:column;gap:8px;}
+.layout{display:grid;grid-template-columns:1fr 340px;height:calc(100vh - 53px);}
 .level-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border-radius:7px;padding:12px 14px;border:1px solid var(--border);}
 .level-row.strike{border-left:4px solid var(--blue);}
 .level-row.expiry{border-left:4px solid var(--gold);}
@@ -145,11 +146,11 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 </style>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
   
-  // 🌟 ฝังพิกัดลิงก์เซิร์ฟเวอร์ Singapore (databaseURL) จากรูปภาพของแอดมินเข้าใน Config เรียบร้อยครับ
   const firebaseConfig = {
     apiKey: "AIzaSyCLq0sx9CBR-SceGR0y61dE9iWmkBsGLck",
     authDomain: "option-tvesignal.firebaseapp.com",
@@ -169,10 +170,11 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
     const errMsg = document.getElementById('lockError');
     if(!userInput) return;
     
-    get(child(ref(db),`option_codes/${userInput}`)).then((snapshot) => {
+    // 📡 ดึงข้อมูลโครงสร้างแบบยึดพิกัดตรงเวอร์ชัน โมดูลาร์ 
+    get(child(ref(db), `option_codes/${userInput}`)).then((snapshot) => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
-        isUnlocked = true;
+        window.isUnlocked = true;
         document.getElementById('lockOverlay').style.opacity = '0';
         setTimeout(() => { document.getElementById('lockOverlay').style.display = 'none'; }, 400);
         const welcome = document.getElementById('welcomeUser');
@@ -180,12 +182,12 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
         welcome.style.display = 'block';
         run();
       } else {
-        isUnlocked = false;
+        window.isUnlocked = false;
         errMsg.style.display = 'block';
       }
     }).catch((error) => {
       console.error(error);
-      alert("ไม่สามารถติดต่อเซิร์ฟเวอร์หลักของโปรเจกต์ option-tvesignal ได้");
+      alert("ไม่สามารถติดต่อเซิร์ฟเวอร์หลักได้ กรุณาตรวจสอบแท็บ Rules บน Firebase อีกครั้งครับ");
     });
   }
 </script>
@@ -235,7 +237,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
     <div class="welcome-user" id="welcomeUser"></div>
 
     <div class="sec">
-      <div class="sec-title">สัญญาณประมวลผลออปชั่นสด</div>
+      <div class="sec-title">信号ประมวลผลออปชั่นสด</div>
 
       <div class="signal-container-relative">
         <div class="signal-lock-overlay" id="lockOverlay">
@@ -310,30 +312,10 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 </div>
 
 <script>
-(function() {
-  const container = document.getElementById('tveParticles');
-  if (!container) return;
-  const pos = [
-    {top:'8%',left:'18%'},{top:'18%',left:'80%'},{top:'72%',left:'86%'},
-    {top:'82%',left:'10%'},{top:'42%',left:'4%'},{top:'4%',left:'58%'},
-    {top:'90%',left:'48%'},{top:'32%',left:'94%'},{top:'60%',left:'2%'},
-    {top:'14%',left:'38%'},{top:'78%',left:'72%'},{top:'50%',left:'92%'},
-  ];
-  pos.forEach(p => {
-    const s = document.createElement('div');
-    s.className = 'tve-star';
-    s.style.top = p.top; s.style.left = p.left;
-    s.style.setProperty('--dur', (1.4 + Math.random()*2).toFixed(1)+'s');
-    s.style.setProperty('--delay', (Math.random()*2.5).toFixed(1)+'s');
-    container.appendChild(s);
-  });
-})();
-
-const TELEGRAM_CONFIG = { token: 'ใส่_BOT_TOKEN_ที่นี่', chatId: 'ใส่_CHAT_ID_กลุ่มที่นี่', enabled: false };
+window.isUnlocked = false; 
 let currentAsset = 'XAUUSD';
 let currentTimeframeMinutes = '15'; 
 let lastSentSignal = 'hold';  
-let isUnlocked = false; 
 let tvWidget = null; 
 let computedATR = 0;
 
@@ -381,4 +363,154 @@ function changeTF(tfMinutes) {
   currentTimeframeMinutes = tfMinutes;
   document.getElementById('tfM15').classList.toggle('active', tfMinutes === '15');
   document.getElementById('tfH1').classList.toggle('active', tfMinutes === '60');
-  document.getElementById('tfH4').classList
+  document.getElementById('tfH4').classList.toggle('active', tfMinutes === '240');
+  updateTradingViewChart(); 
+  run();
+}
+
+function calculateOptionsMatrix(klines, currentPrice) {
+  if (!klines || klines.length < 30) {
+    return { direction: 'hold', details: [] };
+  }
+
+  const closePrices = klines.map(c => parseFloat(c[4]));
+  const highPrices = klines.map(c => parseFloat(c[2]));
+  const lowPrices = klines.map(c => parseFloat(c[3]));
+  const len = closePrices.length;
+
+  const calcEMA = (prices, period) => {
+    let k = 2 / (period + 1);
+    let ema = prices[0];
+    for (let i = 1; i < prices.length; i++) {
+      ema = prices[i] * k + ema * (1 - k);
+    }
+    return ema;
+  };
+
+  const ema50 = calcEMA(closePrices, 50 || len);
+  const trendFilter = currentPrice > ema50 ? 'buy' : 'sell';
+
+  const ema9 = calcEMA(closePrices, 9);
+  const ema21 = calcEMA(closePrices, 21);
+  const triggerCross = ema9 > ema21 ? 'buy' : 'sell';
+
+  let rsiHistory = [];
+  for (let startIdx = len - 20; startIdx < len; startIdx++) {
+    let gains = 0, losses = 0;
+    for (let i = startIdx - 13; i <= startIdx; i++) {
+      let diff = closePrices[i] - closePrices[i - 1];
+      if (diff > 0) gains += diff; else losses -= diff;
+    }
+    rsiHistory.push(losses === 0 ? 100 : 100 - (100 / (1 + (gains / 14) / (losses / 14))));
+  }
+  const rsi = rsiHistory[rsiHistory.length - 1];
+  const rsiMA = calcEMA(rsiHistory, 7);
+  const rsiSignal = rsi > rsiMA ? 'buy' : 'sell';
+
+  const priceActionPulse = closePrices[len - 1] > closePrices[len - 2] ? 'buy' : 'sell';
+
+  let trueRanges = [];
+  for (let i = len - 14; i < len; i++) {
+    let tr = Math.max(highPrices[i] - lowPrices[i], Math.abs(highPrices[i] - closePrices[i - 1]), Math.abs(lowPrices[i] - closePrices[i - 1]));
+    trueRanges.push(tr);
+  }
+  computedATR = trueRanges.reduce((a, b) => a + b, 0) / 14;
+  
+  let threshold = currentPrice * 0.00015;
+  const volSignal = computedATR > threshold ? 'active' : 'dead';
+
+  let finalDir = 'hold';
+  if (volSignal === 'active') {
+    if (trendFilter === 'buy' && triggerCross === 'buy' && rsiSignal === 'buy') finalDir = 'buy';
+    if (trendFilter === 'sell' && triggerCross === 'sell' && rsiSignal === 'sell') finalDir = 'sell';
+  }
+
+  return {
+    direction: finalDir,
+    trendText: trendFilter === 'buy' ? 'BULLISH TREND' : 'BEARISH TREND',
+    details: [
+      {name:'EMA 50 Trend Base', sig: trendFilter},
+      {name:'Sniper Cross (9/21)', sig: triggerCross},
+      {name:`RSI Momentum Wave`, sig: rsiSignal},
+      {name:'Candle Pulse Action', sig: priceActionPulse},
+      {name:'Sideway Filter (ATR)', sig: volSignal === 'active' ? 'buy' : 'hold'}
+    ]
+  };
+}
+
+function renderUI(price, strats, dir, trendText) {
+  let decimalPlaces = currentAsset === 'EURUSD' ? 4 : 2;
+  const fmt = v => v.toLocaleString('en-US', { minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces });
+  
+  document.getElementById('priceDisplay').textContent = `${currentAsset === 'EURUSD' ? '' : '$'}${fmt(price)}`;
+  
+  const box = document.getElementById('signalBox');
+  box.className = 'signal-box ' + dir;
+  
+  const arrowM={buy:'▲',sell:'▼',hold:'◆'};
+  const wordM={buy:'CALL (HIGHER)',sell:'PUT (LOWER)',hold:'HOLD / WAIT'};
+  const colorM={buy:'var(--green)',sell:'var(--red)',hold:'var(--gold)'};
+  
+  document.getElementById('sigArrow').textContent = arrowM[dir];
+  document.getElementById('sigArrow').style.color = colorM[dir];
+  document.getElementById('sigWord').textContent = wordM[dir];
+  document.getElementById('sigWord').style.color = colorM[dir];
+  
+  let currentTFText = currentTimeframeMinutes === '15' ? '1 MIN' : currentTimeframeMinutes === '60' ? '5 MIN' : '15 MIN';
+
+  if(window.isUnlocked){
+    document.getElementById('lvStrikePrice').textContent = fmt(price);
+    document.getElementById('lvRecommendedExpiry').textContent = currentTFText + ' (End of Candle)';
+    document.getElementById('optTrendText').textContent = trendText;
+    document.getElementById('optTrendText').style.color = trendText.includes('BULL') ? 'var(--green)' : 'var(--red)';
+  } else {
+    document.getElementById('lvStrikePrice').textContent = '🔒 LOCKED';
+    document.getElementById('lvRecommendedExpiry').textContent = '🔒 LOCKED';
+    document.getElementById('optTrendText').textContent = '——';
+    document.getElementById('optTrendText').style.color = 'var(--text2)';
+  }
+
+  document.getElementById('stratPills').innerHTML = strats.map(s=>`
+    <div class="strat-pill ${s.sig === 'buy' ? 'buy' : s.sig === 'sell' ? 'sell' : 'hold'}">
+      <span class="pill-name">${s.name}</span>
+      <span class="pill-sig ${s.sig === 'buy' ? 'buy' : s.sig === 'sell' ? 'sell' : 'hold'}">
+        ${s.sig === 'buy' ? 'MATCH' : s.sig === 'sell' ? 'MATCH' : 'WAIT'}
+      </span>
+    </div>`).join('');
+
+  const inds = [
+    {n:'Target Asset', v: currentAsset, c:'up'},
+    {n:'Matrix Expiry Mode', v: currentTFText, c:'up'},
+    {n:'Target Firebase Node', v:'option_codes', c:'up'}
+  ];
+  document.getElementById('indTable').innerHTML = inds.map(x=>`
+    <div class="ind-row"><span class="ind-name">${x.n}</span><span class="ind-val ${x.c}">${x.v}</span></div>`).join('');
+    
+  document.getElementById('lastUpdate').textContent = 'สแกนล่าสุด ' + new Date().toLocaleTimeString('th-TH');
+}
+
+async function run() {
+  try {
+    let binanceInterval = currentTimeframeMinutes === '15' ? '1m' : currentTimeframeMinutes === '60' ? '5m' : '15m';
+    const symbol = assetMap[currentAsset].binanceSymbol;
+    
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${binanceInterval}&limit=80`);
+    
+    if (r.ok) {
+      const klines = await r.json();
+      const currentPrice = parseFloat(klines[klines.length - 1][4]);
+
+      const matrixAnalysis = calculateOptionsMatrix(klines, currentPrice);
+      renderUI(currentPrice, matrixAnalysis.details, matrixAnalysis.direction, matrixAnalysis.trendText);
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+updateTradingViewChart();
+run();
+setInterval(run, 15000); 
+</script>
+</body>
+</html>
