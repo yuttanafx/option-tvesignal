@@ -600,15 +600,18 @@ function switchChartFocus(key) {
 }
 
 window.changeTF = function(tfMinutes) {
-  window.selectedTF = tfMinutes; // เช่น '1', '5', '15'
+  window.selectedTF = tfMinutes;
   
-  // อัปเดต CSS ปุ่มให้ถูกต้องตามค่าใหม่
+  // สลับค่าให้ตรง: 
+  // ปุ่ม 1 MIN ให้ส่ง '1' 
+  // ปุ่ม 5 MIN ให้ส่ง '5'
+  // ปุ่ม 15 MIN ให้ส่ง '15'
   document.getElementById('tfM15').classList.toggle('active', tfMinutes === '1');
-  document.getElementById('tfH1').classList.toggle('active',  tfMinutes === '5');
-  document.getElementById('tfH4').classList.toggle('active',  tfMinutes === '15');
+  document.getElementById('tfH1').classList.toggle('active', tfMinutes === '5');
+  document.getElementById('tfH4').classList.toggle('active', tfMinutes === '15');
   
   lastSentSignals = {}; 
-  updateTradingViewChart();
+  updateTradingViewChart(); // ตัวนี้จะไปดึงค่า window.selectedTF ไปใช้
   runMultiScanner();
 };
 
