@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVE Options Matrix · Admin Panel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+:root {
+  --bg:#0a0a0f;--panel:#111118;--panel2:#16161f;--border:#1e1e2e;
+  --gold:#f5c842;--gold-dim:rgba(245,200,66,0.12);
+  --green:#00e676;--green-dim:rgba(0,230,118,0.12);
+  --red:#ff4444;--red-dim:rgba(255,68,68,0.12);
+  --blue:#4fc3f7;--blue-dim:rgba(79,195,247,0.12);
+  --text:#e8e8f0;--text2:#9090a8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;padding:24px;}
+.admin-wrap{max-width:800px;margin:0 auto;}
+.header{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.title{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--gold);}
+.title small{color:var(--text2);font-size:12px;display:block;}
+
+/* หน้าจอ Login Control */
+.admin-login-overlay{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:32px;width:100%;max-width:360px;text-align:center;}
+.input-field{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;margin-bottom:12px;outline:none;}
+.input-field:focus{border-color:var(--gold);}
+.btn{width:100%;background:var(--gold);color:var(--bg);border:none;border-radius:6px;padding:12px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+
+/* แผงควบคุมภายใน */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:768px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;}
+.card-title{font-family:'Space Mono',monospace;font-size:14px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;letter-spacing:1px;}
+
+/* ตารางแสดงรายชื่อ */
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{padding:12px;text-align:left;border-bottom:1px solid var(--border);font-size:14px;}
+th{color:var(--text2);font-family:'Space Mono',monospace;font-size:12px;text-transform:uppercase;}
+td.code{font-family:'Space Mono',monospace;color:var(--blue);font-weight:700;}
+.del-btn{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:var(--red);padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;}
+.del-btn:hover{background:var(--red);color:var(--bg);}
+</style>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  // 🌟 ซิงก์ตรงกับพิกัดถังข้อมูลสิงคโปร์ของแอดมิน
+  const firebaseConfig = {
+    apiKey: "AIzaSyCLq0sx9CBR-SceGR0y61dE9iWmkBsGLck",
+    authDomain: "option-tvesignal.firebaseapp.com",
+    databaseURL: "https://option-tvesignal-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "option-tvesignal",
+    storageBucket: "option-tvesignal.firebasestorage.app",
+    messagingSenderId: "552322019865",
+    appId: "1:552322019865:web:aa8ee5051de72361a9f088",
+    measurementId: "G-5WX9BV2L8Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // 🔒 ระบบล็อกอินเข้าควบคุมห้องแอดมิน (แอดมินแก้เปลี่ยนรหัสตรงนี้ตามใจชอบครับ)
+  const ADMIN_PASSCODE = "admin888"; 
+
+  window.verifyAdmin = function() {
+    const input = document.getElementById('adminPass').value.trim();
+    if(input === ADMIN_PASSCODE) {
+      document.getElementById('loginOverlay').style.display = 'none';
+      loadUserList(); // ปลดล็อกผ่าน ดึงรายชื่อทันที
+    } else {
+      alert("❌ รหัสผ่านแอดมินไม่ถูกต้อง!");
+    }
+  }
+
+  // ➕ ฟังก์ชันเพิ่มรหัสผ่านใหม่ (จัดรูปแบบกิ่งลงถังอัตโนมัติ)
+  window.addNewCode = function() {
+    const code = document.getElementById('newCode').value.trim();
+    const name = document.getElementById('customerName').value.trim();
+
+    if(!code || !name) {
+      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    // เขียนพิกัดลงถังโครงสร้างแบบเดียวกับที่เรากรอกเมื่อกี้เป๊ะๆ
+    set(ref(db, `option_codes/${code}`), {
+      customer_name: name
+    }).then(() => {
+      alert("✨ เพิ่มรหัสผ่านและลงทะเบียนลูกค้าสำเร็จ!");
+      document.getElementById('newCode').value = '';
+      document.getElementById('customerName').value = '';
+    }).catch(e => alert("เกิดข้อผิดพลาด: " + e));
+  }
+
+  // 🗑️ ฟังก์ชันสั่งลบรหัสผ่านตัดสิทธิ์การใช้งาน
+  window.deleteCode = function(codeKey) {
+    if(confirm(`คุณต้องการลบรหัส [ ${codeKey} ] ใช่หรือไม่? ลูกค้าคนนี้จะหลุดจากระบบทันที`)) {
+      remove(ref(db, `option_codes/${codeKey}`)).then(() => {
+        alert("ลบรหัสผ่านเรียบร้อย");
+      });
+    }
+  }
+
+  // 📡 ฟังก์ชันดึงรายชื่อลูกค้าออโต้แบบเรียลไทม์ (เมื่อมีคนเพิ่ม/ลบ หน้าจอจะรีเฟรชเองทันที)
+  function loadUserList() {
+    onValue(ref(db, 'option_codes'), (snapshot) => {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '';
+      
+      if(snapshot.exists()) {
+        const data = snapshot.val();
+        Object.keys(data).forEach(code => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="code">${code}</td>
+            <td>${data[code].customer_name || 'ไม่ระบุชื่อ'}</td>
+            <td><button class="del-btn" onclick="deleteCode('${code}')">ลบสิทธิ์</button></td>
+          `;
+          tbody.appendChild(row);
+        });
+      } else {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text2);">ยังไม่มีการสร้างรหัสผ่านในระบบ</td></tr>';
+      }
+    });
+  }
+</script>
+</head>
+<body>
+
+<div class="admin-login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2 style="color:var(--gold); margin-bottom:14px; font-family:'Space Mono';">TVE ADMIN GATE</h2>
+    <p style="color:var(--text2); font-size:12px; margin-bottom:20px;">กรอกรหัสควบคุมหลังบ้านเพื่อทำระบบการจัดการ</p>
+    <input type="password" id="adminPass" class="input-field" placeholder="ENTER ADMIN KEY..." onkeydown="if(event.key==='Enter') verifyAdmin()">
+    <button class="btn" onclick="verifyAdmin()">LOGIN TO PANEL</button>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <div class="header">
+    <div class="title">◈ TVE CONTROL HUB <small>Project Control: option-tvesignal</small></div>
+    <div style="font-size:12px; color:var(--green); font-family:'Space Mono';">● CONTROL LIVE</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">➕ ออกรหัสผ่านลูกค้าใหม่</div>
+      <input type="text" id="newCode" class="input-field" placeholder="ตัวอย่าง: VIP777">
+      <input type="text" id="customerName" class="input-field" placeholder="ระบุชื่อลูกค้า / ผู้ทดสอบ">
+      <button class="btn" onclick="addNewCode()" style="background:var(--blue); color:#000;">บันทึกลงถังข้อมูล</button>
+    </div>
+
+    <div class="card" style="grid-column: span 1;">
+      <div class="card-title">📋 บัญชีรหัสผ่านที่มีในระบบ</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>PASSCODE (รหัส)</th>
+              <th>CUSTOMER (ชื่อลูกค้า)</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr><td colspan="3" style="text-align:center; color:var(--text2);">กำลังโหลดฐานข้อมูลจากสิงคโปร์...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
