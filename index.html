@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVE Options Signal · Advanced Terminal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+:root {
+  --bg:#0a0a0f;--panel:#111118;--panel2:#16161f;--border:#1e1e2e;
+  --gold:#f5c842;--gold-dim:rgba(245,200,66,0.12);
+  --green:#00e676;--green-dim:rgba(0,230,118,0.12);
+  --red:#ff4444;--red-dim:rgba(255,68,68,0.12);
+  --blue:#4fc3f7;--blue-dim:rgba(79,195,247,0.12);
+  --muted:#555570;--text:#e8e8f0;--text2:#9090a8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--panel);}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;}
+.logo small{color:var(--text2);font-size:11px;font-weight:400;}
+.live-badge{display:flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid rgba(0,230,118,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--green);font-family:'Space Mono',monospace;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.layout{display:grid;grid-template-columns:1fr 340px;height:calc(100vh - 53px);}
+@media(max-width:960px){.layout{grid-template-columns:1fr;height:auto;}}
+.left{display:flex;flex-direction:column;overflow:hidden;background:#000;}
+.chart-container-tv { flex:1; width:100%; height:100%; min-height:450px; position:relative; }
+.price-bar{display:flex;align-items:flex-end;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--panel) 0%,var(--bg) 100%);}
+.price-big{font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1;}
+.price-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:4px;}
+.price-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.sidebar{border-left:1px solid var(--border);background:var(--panel);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sec{padding:18px;border-bottom:1px solid var(--border);}
+.sec-title{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:14px;}
+
+.asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.asset-btn {
+  padding: 10px; background: var(--panel2); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Space Mono', monospace; font-size: 12px;
+  font-weight: 700; border-radius: 6px; cursor: pointer; text-align: left;
+  display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;
+}
+.asset-btn span.type-badge { font-size: 8px; background: var(--bg); padding: 2px 6px; border-radius: 4px; color: var(--text2); text-transform: uppercase; }
+.asset-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+.asset-btn.active span.type-badge { background: var(--gold); color: var(--bg); }
+
+.selector-wrap { display: flex; gap: 6px; margin-bottom: 12px; }
+.select-btn {
+  flex: 1; padding: 8px; background: var(--panel2); border: 1px solid var(--border);
+  color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px;
+  font-weight: 700; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+.select-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+
+.signal-container-relative { position: relative; overflow: hidden; border-radius: 10px; }
+.signal-lock-overlay {
+  position: absolute; inset: 0; background: rgba(11, 11, 18, 0.98);
+  border: 1px dashed var(--gold); border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 10; padding: 20px; text-align: center; backdrop-filter: blur(6px);
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* ═══════════════════════════════════════
+   TVE TECH ECOSYSTEM — ANIMATED LOGO
+   ═══════════════════════════════════════ */
+.tve-anim-wrap {
+  position: relative; width: 160px; height: 160px;
+  margin-bottom: 10px; flex-shrink: 0;
+}
+.tve-ring-outer {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid transparent; border-top-color: var(--gold);
+  border-right-color: rgba(245, 200, 66, 0.25);
+  animation: spinCW 3s linear infinite;
+}
+.tve-ring-mid {
+  position: absolute; inset: 14px; border-radius: 50%;
+  border: 1.5px solid transparent; border-bottom-color: #4fc3f7;
+  border-left-color: rgba(79, 195, 247, 0.2);
+  animation: spinCCW 2.2s linear infinite;
+}
+.tve-ring-inner {
+  position: absolute; inset: 28px; border-radius: 50%;
+  border: 1px solid rgba(245, 200, 66, 0.12);
+  animation: breathe 2.8s ease-in-out infinite;
+}
+.tve-orbit-gold {
+  position: absolute; top: 50%; left: 50%;
+  width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%; background: var(--gold);
+  box-shadow: 0 0 12px 4px rgba(245, 200, 66, 0.65);
+  animation: orbitGold 3s linear infinite;
+}
+.tve-orbit-blue {
+  position: absolute; top: 50%; left: 50%;
+  width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%; background: #4fc3f7;
+  box-shadow: 0 0 9px 3px rgba(79, 195, 247, 0.6);
+  animation: orbitBlue 2s linear infinite;
+}
+.tve-orbit-green {
+  position: absolute; top: 50%; left: 50%;
+  width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 8px 2px rgba(0, 230, 118, 0.55);
+  animation: orbitGreen 1.55s linear infinite;
+}
+.tve-hex-svg {
+  position: absolute; inset: 38px;
+  filter: drop-shadow(0 0 8px rgba(245, 200, 66, 0.45));
+  animation: breathe 3s ease-in-out infinite alternate;
+}
+.tve-center-text {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.tve-letters {
+  font-family: 'Space Mono', monospace;
+  font-size: 23px; font-weight: 700; color: var(--gold);
+  letter-spacing: 4px; text-shadow: 0 0 14px rgba(245, 200, 66, 0.8);
+  animation: textGlow 2s ease-in-out infinite alternate;
+}
+.tve-sub-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px; color: rgba(245, 200, 66, 0.55);
+  letter-spacing: 1.8px; margin-top: 2px;
+}
+.tve-scan { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; }
+.tve-scan::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(245, 200, 66, 0.06), transparent);
+  animation: scanSweep 3.5s ease-in-out infinite;
+}
+.tve-particles { position: absolute; inset: 0; pointer-events: none; }
+.tve-star {
+  position: absolute; width: 2px; height: 2px; background: var(--gold);
+  border-radius: 50%; opacity: 0;
+  animation: twinkle var(--dur, 2s) ease-in-out infinite var(--delay, 0s);
+}
+
+@keyframes spinCW   { to { transform: rotate(360deg) } }
+@keyframes spinCCW  { to { transform: rotate(-360deg) } }
+@keyframes breathe  { 0%, 100% { opacity: .45; transform: scale(.96) } 50% { opacity: 1; transform: scale(1.04) } }
+@keyframes textGlow {
+  from { text-shadow: 0 0 8px rgba(245, 200, 66, .45) }
+  to   { text-shadow: 0 0 22px rgba(245, 200, 66, 1), 0 0 42px rgba(245, 200, 66, .4) }
+}
+@keyframes twinkle  { 0%, 100% { opacity: 0; transform: scale(.5) } 50% { opacity: 1; transform: scale(1.3) } }
+@keyframes scanSweep { 0% { left: -60% } 100% { left: 165% } }
+@keyframes orbitGold {
+  from { transform: rotate(0deg) translateX(68px) rotate(0deg) }
+  to   { transform: rotate(360deg) translateX(68px) rotate(-360deg) }
+}
+@keyframes orbitBlue {
+  from { transform: rotate(120deg) translateX(54px) rotate(-120deg) }
+  to   { transform: rotate(480deg) translateX(54px) rotate(-480deg) }
+}
+@keyframes orbitGreen {
+  from { transform: rotate(240deg) translateX(42px) rotate(-240deg) }
+  to   { transform: rotate(600deg) translateX(42px) rotate(-600deg) }
+}
+.tve-ecosystem-label {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2.5px;
+  color: rgba(245, 200, 66, 0.5); text-transform: uppercase; margin-bottom: 6px;
+  animation: textGlow 3s ease-in-out infinite alternate;
+}
+/* ═══════════════════════════════════════ */
+
+.lock-title{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--gold);font-family:'Space Mono',monospace;letter-spacing:1px;}
+.lock-desc{font-size:11px;color:var(--text2);margin-bottom:14px;}
+.lock-input-group{display:flex;gap:6px;width:100%;max-width:240px;}
+.lock-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none;text-align:center;}
+.lock-input:focus{border-color:var(--gold);}
+.lock-submit-btn{background:var(--gold);color:var(--bg);border:none;padding:8px 14px;font-size:12px;font-weight:700;border-radius:6px;cursor:pointer;}
+.lock-error{color:var(--red);font-size:11px;margin-top:8px;font-family:'Space Mono',monospace;display:none;}
+.welcome-user{font-size:11px;color:var(--green);font-family:'Space Mono',monospace;margin-bottom:10px;text-align:center;display:none;}
+
+.signal-box{border-radius:10px;padding:18px;border:1px solid var(--border); transition: all 0.3s; }
+.signal-box.buy{background:linear-gradient(135deg,rgba(0,230,118,0.08) 0%,transparent 100%);border-color:rgba(0,230,118,0.45);box-shadow:0 0 15px rgba(0,230,118,0.1);}
+.signal-box.sell{background:linear-gradient(135deg,rgba(255,68,68,0.08) 0%,transparent 100%);border-color:rgba(255,68,68,0.45);box-shadow:0 0 15px rgba(255,68,68,0.1);}
+.signal-box.hold{background:linear-gradient(135deg,rgba(245,200,66,0.08) 0%,transparent 100%);border-color:rgba(245,200,66,0.35);}
+.sig-direction{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.sig-arrow{font-size:28px;line-height:1;}
+.sig-word{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:1px;}
+.sig-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.levels{display:flex;flex-direction:column;gap:8px;}
+.level-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border-radius:7px;padding:12px 14px;border:1px solid var(--border);}
+.level-row.strike{border-left:4px solid var(--blue);}
+.level-row.expiry{border-left:4px solid var(--gold);}
+.lv-label{display:flex;align-items:center;gap:6px;}
+.lv-dot{width:8px;height:8px;border-radius:50%;}
+.lv-dot.strike{background:var(--blue);}
+.lv-dot.expiry{background:var(--gold);}
+.lv-name{font-size:11px;color:var(--text);font-family:'Space Mono',monospace;}
+.lv-price{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;}
+.lv-price.strike{color:var(--blue);}
+.lv-price.expiry{color:var(--gold);}
+
+/* 📊 แถวระบบกล่องสถิติสำหรับ Options */
+.options-meta-box { margin-top:12px; background:var(--panel2); border-radius:8px; padding:12px 14px; border:1px solid var(--border); }
+.opt-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12px;}
+.opt-row:last-child { margin-bottom:0; }
+.opt-k { font-size:10px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; font-family:'Space Mono',monospace; }
+.opt-v { font-weight:700; font-family:'Space Mono',monospace; }
+
+.strat-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.strat-pill{display:flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;}
+.strat-pill.buy{border-left:2px solid var(--green);}
+.strat-pill.sell{border-left:2px solid var(--red);}
+.strat-pill.hold{border-left:2px solid var(--gold);}
+.pill-name{font-size:10px;color:var(--text2);}
+.pill-sig{font-size:10px;font-weight:700;font-family:'Space Mono',monospace;}
+.pill-sig.buy{color:var(--green)}.pill-sig.sell{color:var(--red)}.pill-sig.hold{color:var(--gold)}
+.refresh-btn{margin:16px;padding:11px;background:var(--gold-dim);border:1px solid rgba(245,200,66,0.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:calc(100% - 32px);letter-spacing:0.5px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.refresh-btn:hover{background:rgba(245,200,66,0.22);border-color:rgba(245,200,66,0.55);}
+.ind-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.ind-row:last-child{border-bottom:none;}
+.ind-name{font-size:11px;color:var(--text2);}
+.ind-val{font-family:'Space Mono',monospace;font-size:12px;font-weight:600;}
+</style>
+
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  const firebaseConfig = {
+    apiKey:"AIzaSyBK-t9u01YPYaKC2PhSUbY-1Mwf68zlAjg",
+    authDomain:"gold-signal-vip-c2f0a.firebaseapp.com",
+    projectId:"gold-signal-vip-c2f0a",
+    storageBucket:"gold-signal-vip-c2f0a.firebasestorage.app",
+    messagingSenderId:"550763507298",
+    appId:"1:550763507298:web:11d4e65a22ccc55fd22b3b",
+    measurementId:"G-3BVD9L4J86"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  window.checkUnlockCode = function() {
+    const userInput = document.getElementById('pwdInput').value.trim();
+    const errMsg = document.getElementById('lockError');
+    if(!userInput) return;
+    get(child(ref(db),`vip_codes/${userInput}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        isUnlocked = true;
+        document.getElementById('lockOverlay').style.opacity = '0';
+        setTimeout(() => { document.getElementById('lockOverlay').style.display = 'none'; }, 400);
+        const welcome = document.getElementById('welcomeUser');
+        welcome.textContent = `Premium User: ${userData.customer_name}`;
+        welcome.style.display = 'block';
+        run();
+      } else {
+        isUnlocked = false;
+        errMsg.style.display = 'block';
+      }
+    }).catch((error) => {
+      console.error(error);
+      alert("ไม่สามารถเข้าถึงสิทธิ์ VIP ได้ กรุณาเช็กสิทธิ์ระบบอีกครั้งครับ");
+    });
+  }
+</script>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">◈ TVE OPTIONS MATRIX <small>Live Precision Terminal</small></div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE DATA FEED</div>
+    <div id="lastUpdate">—</div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="left">
+    <div class="price-bar">
+      <div>
+        <div class="price-label" id="assetLabelDisplay">GOLD SPOT / U.S. DOLLAR</div>
+        <div class="price-big" id="priceDisplay">—</div>
+        <div class="price-sub">ราคา Strike Price อ้างอิงปัจจุบัน สัญญาณกรองจบในแท่ง (Candle Close)</div>
+      </div>
+    </div>
+    <div class="chart-container-tv" id="tv_chart_container"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sec">
+      <div class="sec-title">เลือกสินทรัพย์ตรวจออปชั่น (Select Asset)</div>
+      <div class="asset-grid">
+        <button class="asset-btn active" id="asset-XAUUSD" onclick="changeAsset('XAUUSD')">💰 XAUUSD <span class="type-badge">Gold</span></button>
+        <button class="asset-btn" id="asset-BTCUSD" onclick="changeAsset('BTCUSD')">₿ BTCUSD <span class="type-badge">Crypto</span></button>
+        <button class="asset-btn" id="asset-ETHUSD" onclick="changeAsset('ETHUSD')">♦ ETHUSD <span class="type-badge">Crypto</span></button>
+        <button class="asset-btn" id="asset-EURUSD" onclick="changeAsset('EURUSD')">🇪🇺 EURUSD <span class="type-badge">Forex</span></button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">เลือกชุดเวลาสัญญา (Timeframe Expiry)</div>
+      <div class="selector-wrap">
+        <button class="select-btn active" id="tfM15" onclick="changeTF('15')">1 MIN</button>
+        <button class="select-btn" id="tfH1" onclick="changeTF('60')">5 MIN</button>
+        <button class="select-btn" id="tfH4" onclick="changeTF('240')">15 MIN</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="welcome-user" id="welcomeUser"></div>
+      <div class="sec-title">สัญญาณประมวลผลออปชั่นสด</div>
+
+      <div class="signal-container-relative">
+        <div class="signal-lock-overlay" id="lockOverlay">
+          <div class="tve-anim-wrap">
+            <div class="tve-scan"></div>
+            <div class="tve-ring-outer"></div>
+            <div class="tve-ring-mid"></div>
+            <div class="tve-ring-inner"></div>
+            <div class="tve-orbit-gold"></div>
+            <div class="tve-orbit-blue"></div>
+            <div class="tve-orbit-green"></div>
+            <svg class="tve-hex-svg" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="42,4 78,23 78,61 42,80 6,61 6,23" fill="rgba(245,200,66,0.07)" stroke="rgba(245,200,66,0.45)" stroke-width="1.5" stroke-linejoin="round"/>
+              <polygon points="42,14 68,29 68,55 42,70 16,55 16,29" fill="none" stroke="rgba(245,200,66,0.15)" stroke-width="0.8"/>
+            </svg>
+            <div class="tve-center-text">
+              <div class="tve-letters">TVE</div>
+              <div class="tve-sub-text">OPTIONS</div>
+            </div>
+            <div class="tve-particles" id="tveParticles"></div>
+          </div>
+
+          <div class="tve-ecosystem-label">Tech · Vision · Options</div>
+          <div class="lock-title">TVE ECOSYSTEM VIP</div>
+          <div class="lock-desc">กรอกรหัสผ่านเพื่อเข้าถึงเรดาร์สัญญาณแม่นยำสูง</div>
+          <div class="lock-input-group">
+            <input type="password" class="lock-input" id="pwdInput" placeholder="ENTER PASSCODE..." onkeydown="if(event.key==='Enter') checkUnlockCode()">
+            <button class="lock-submit-btn" onclick="checkUnlockCode()">ตกลง</button>
+          </div>
+          <div class="lock-error" id="lockError">✖ ไม่พบรหัสผ่านนี้ในระบบฐานข้อมูล VIP</div>
+        </div>
+
+        <div class="signal-box hold" id="signalBox">
+          <div class="sig-direction">
+            <div class="sig-arrow" id="sigArrow">◆</div>
+            <div>
+              <div class="sig-word" id="sigWord">WAIT</div>
+              <div class="sig-sub" id="sigSub">—</div>
+            </div>
+          </div>
+          
+          <div class="levels">
+            <div class="level-row strike">
+              <div class="lv-label"><div class="lv-dot strike"></div><span class="lv-name">STRIKE PRICE (ราคาเปิดออเดอร์)</span></div>
+              <div class="lv-price strike" id="lvStrikePrice">—</div>
+            </div>
+            <div class="level-row expiry">
+              <div class="lv-label"><div class="lv-dot expiry"></div><span class="lv-name">RECOMMENDED EXPIRY</span></div>
+              <div class="lv-price expiry" id="lvRecommendedExpiry">—</div>
+            </div>
+          </div>
+          
+          <div class="options-meta-box">
+            <div class="opt-row"><span class="opt-k">Matrix Trend Base</span><span class="opt-v" id="optTrendText" style="color:var(--text2)">——</span></div>
+            <div class="opt-row"><span class="opt-k">Standard Payout Est.</span><span class="opt-v" style="color:var(--green)">85% - 92%</span></div>
+            <div class="opt-row"><span class="opt-k">Signal Validity</span><span class="opt-v" style="color:var(--blue)">Current
