@@ -696,15 +696,11 @@ async function runMultiScanner() {
         price  = parseFloat(klines[klines.length - 1][4]);
       } else {
         // ── Binance klines ──
-        // เปลี่ยนบรรทัด fetch เดิม เป็นบรรทัดนี้ครับ:
-// วางโค้ดนี้แทนที่บรรทัดเดิมครับ
-const symbolYahoo = assetInfo.binanceSymbol.replace('USDT', '-USD');
-const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbolYahoo}?interval=1m&range=1h`);
-const data = await res.json();
-const quotes = data.chart.result[0].indicators.quote[0].close;
-const price = quotes[quotes.length - 1];
-// เนื่องจาก Yahoo ไม่ส่ง Klines มาเหมือน Binance เราจะดึงราคาอย่างเดียว
-// ตรงส่วนการคำนวณ EMA เดิม ถ้ายังต้องใช้ klines อยู่ ให้แอดมินบอกผมนะครับ เดี๋ยวผมปรับ Logic การคำนวณให้เข้ากับ Yahoo ครับ
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=80`);
+        if (!res.ok) throw new Error(`Binance ${res.status}`);
+        klines = await res.json();
+        price  = parseFloat(klines[klines.length - 1][4]);
+      }
         const { direction, quality, reason } = analyzeAssetData(klines);
 
         // decimal format
