@@ -599,15 +599,18 @@ function switchChartFocus(key) {
   runMultiScanner();
 }
 
-function changeTF(tfMinutes) {
-  window.selectedTF = tfMinutes;
-  document.getElementById('tfM15').classList.toggle('active', tfMinutes === '15');
-  document.getElementById('tfH1').classList.toggle('active',  tfMinutes === '60');
-  document.getElementById('tfH4').classList.toggle('active',  tfMinutes === '240');
-  lastSentSignals = {}; // reset เมื่อเปลี่ยน TF
+window.changeTF = function(tfMinutes) {
+  window.selectedTF = tfMinutes; // เช่น '1', '5', '15'
+  
+  // อัปเดต CSS ปุ่มให้ถูกต้องตามค่าใหม่
+  document.getElementById('tfM15').classList.toggle('active', tfMinutes === '1');
+  document.getElementById('tfH1').classList.toggle('active',  tfMinutes === '5');
+  document.getElementById('tfH4').classList.toggle('active',  tfMinutes === '15');
+  
+  lastSentSignals = {}; 
   updateTradingViewChart();
   runMultiScanner();
-}
+};
 
 // ─── MANUAL REFRESH (fixed) ───────────────────────────────────────────────────
 window.manualRefresh = async function() {
