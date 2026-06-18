@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TVE Options Matrix · Project: option-tvesignal</title>
+<title>TVE Options Matrix · Advanced Terminal</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 :root {
@@ -148,24 +148,27 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  
+  // 🌟 ปลั๊กอินด้วยคีย์ชุดใหม่ของโปรเจกต์ option-tvesignal แท้ 100% เรียบร้อยครับแอดมิน
   const firebaseConfig = {
-    apiKey:"AIzaSyBK-t9u01YPYaKC2PhSUbY-1Mwf68zlAjg",
-    authDomain:"gold-signal-vip-c2f0a.firebaseapp.com",
-    projectId:"gold-signal-vip-c2f0a",
-    storageBucket:"gold-signal-vip-c2f0a.firebasestorage.app",
-    messagingSenderId:"550763507298",
-    appId:"1:550763507298:web:11d4e65a22ccc55fd22b3b",
-    measurementId:"G-3BVD9L4J86"
+    apiKey: "AIzaSyCLq0sx9CBR-SceGR0y61dE9iWmkBsGLck",
+    authDomain: "option-tvesignal.firebaseapp.com",
+    projectId: "option-tvesignal",
+    storageBucket: "option-tvesignal.firebasestorage.app",
+    messagingSenderId: "552322019865",
+    appId: "1:552322019865:web:aa8ee5051de72361a9f088",
+    measurementId: "G-5WX9BV2L8Z"
   };
+  
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // 📡 แยก Node ยูสเซอร์ชุดใหม่โดยวิ่งไปตรวจสอบที่โฟลเดอร์รหัสผ่าน 'option_codes' ดึงค่าความปลอดภัยใหม่
   window.checkUnlockCode = function() {
     const userInput = document.getElementById('pwdInput').value.trim();
     const errMsg = document.getElementById('lockError');
     if(!userInput) return;
     
+    // ชี้เป้าล็อกข้อมูลเข้าไปหา Node อิสระ 'option_codes' ตามโครงสร้างพอร์ตกิ๊กใหม่
     get(child(ref(db),`option_codes/${userInput}`)).then((snapshot) => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
@@ -203,7 +206,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
       <div>
         <div class="price-label" id="assetLabelDisplay">GOLD SPOT / U.S. DOLLAR</div>
         <div class="price-big" id="priceDisplay">—</div>
-        <div class="price-sub">ราคา Strike Price อ้างอิงปัจจุบัน ประมวลผลจาก Node: option_codes</div>
+        <div class="price-sub">ราคา Strike Price อ้างอิงปัจจุบัน ประมวลผลแยกถังเด็ดขาด</div>
       </div>
     </div>
     <div class="chart-container-tv" id="tv_chart_container"></div>
@@ -229,8 +232,9 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
       </div>
     </div>
 
+    <div class="welcome-user" id="welcomeUser"></div>
+
     <div class="sec">
-      <div class="welcome-user" id="welcomeUser"></div>
       <div class="sec-title">สัญญาณประมวลผลออปชั่นสด</div>
 
       <div class="signal-container-relative">
