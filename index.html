@@ -696,7 +696,7 @@ async function runMultiScanner() {
         price  = parseFloat(klines[klines.length - 1][4]);
       } else {
         // ── Binance klines ──
-        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.binance.com/api/v3/klines?symbol='+assetInfo.binanceSymbol+'&interval='+binanceInterval+'&limit=80')}`);
+        const res = await fetch(`https://data-api.binance.vision/api/v3/klines?symbol=${assetInfo.binanceSymbol}&interval=${binanceInterval}&limit=80`);
         if (!res.ok) throw new Error(`Binance ${res.status}`);
         klines = await res.json();
         price  = parseFloat(klines[klines.length - 1][4]);
