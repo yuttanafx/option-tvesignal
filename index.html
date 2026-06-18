@@ -786,20 +786,23 @@ function saveDailyLog(log) {
 // เพิ่ม entry ใหม่เมื่อมีสัญญาณ
 function logNewSignal(assetKey, dir, entryPrice, tfMinutes) {
   const log = loadDailyLog();
-  // ป้องกัน duplicate: ถ้ามี entry ของ assetKey นี้ที่ยัง pending อยู่ ไม่บันทึกซ้ำ
+  
+  // แปลง tfMinutes (String) เป็นวินาทีให้ตรงเป๊ะ
+  const minutes = parseInt(tfMinutes); 
+  const expirySec = minutes * 60; 
+  
   const hasPending = log.entries.some(e => e.asset === assetKey && e.result === 'pending');
   if (hasPending) return;
 
-  const expirySec = parseInt(tfMinutes) * 60; // expiry เป็นวินาที (= 1 แท่งเทียน)
   const entry = {
     id: Date.now(),
     time: new Date().toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' }),
     asset: assetKey,
-    dir, // 'buy' | 'sell'
-    entryPrice,
-    expirySec,
-    resolveAt: Date.now() + expirySec * 1000,
-    result: 'pending' // 'pending' | 'win' | 'lose'
+    dir: dir,
+    entryPrice: entryPrice,
+    expirySec: expirySec, // ใช้ค่าที่ผูกกับ TF ที่เลือก
+    resolveAt: Date.now() + (expirySec * 1000), // ตรงนี้จะนับถอยหลังตรงกับ TF
+    result: 'pending'
   };
   log.entries.push(entry);
   saveDailyLog(log);
