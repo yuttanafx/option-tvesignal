@@ -547,7 +547,10 @@ async function sendSignalTelegram(assetKey, dir, strikePrice, quality) {
 
   const emoji = dir === 'buy' ? '🟢 [CALL / HIGHER]' : '🔴 [PUT / LOWER]';
   const qualEmoji = quality === 'strong' ? '⭐⭐⭐ STRONG' : quality === 'normal' ? '⭐⭐ NORMAL' : '⭐ WEAK';
-  const expiryText = window.selectedTF === '15' ? '1 MIN' : window.selectedTF === '60' ? '5 MIN' : '15 MIN';
+  
+  // แก้ไขตรงนี้ครับ ให้ใช้ตัวเลขที่เลือกมาโชว์ตรงๆ
+  const expiryText = window.selectedTF + " MIN"; 
+  
   const filterText = filterLevel.toUpperCase();
   const timeStr = new Date().toLocaleTimeString('th-TH');
 
@@ -573,7 +576,6 @@ _ผ่านระบบฟิลเตอร์ ${filterText} · TVE Premium_`
     }
   } catch(e){}
 }
-
 // ─── CHART ────────────────────────────────────────────────────────────────────
 function updateTradingViewChart() {
   // สั่งแปลงค่า '1', '5', '15' ให้เป็น format ที่ TradingView ต้องการ ('1', '5', '15')
